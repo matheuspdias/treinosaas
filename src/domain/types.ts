@@ -216,6 +216,8 @@ export interface Settings {
   restNotification: boolean
   defaultRestSec: number
   defaultIncrementKg: number
+  /** Já passou (ou pulou) pela tela de boas-vindas. */
+  onboardingDone: boolean
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -226,4 +228,5 @@ export const DEFAULT_SETTINGS: Settings = {
   restNotification: true,
   defaultRestSec: 90,
   defaultIncrementKg: 2.5,
+  onboardingDone: false,
 }

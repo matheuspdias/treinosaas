@@ -24,7 +24,7 @@ export async function showNotification(
   options: NotificationOptions = {},
 ): Promise<void> {
   if (!notificationsSupported() || Notification.permission !== 'granted') return
-  const opts: NotificationOptions = { icon: '/pwa-192.png', badge: '/pwa-192.png', ...options }
+  const opts: NotificationOptions = { icon: '/pwa-192x192.png', ...options }
   try {
     const reg = await navigator.serviceWorker?.getRegistration()
     if (reg) {

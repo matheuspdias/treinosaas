@@ -39,6 +39,11 @@ export function useCustomExercise(id: ID | undefined): CustomExercise | null | u
   )
 }
 
+/** Preferências; `undefined` enquanto carrega (use quando o valor padrão enganaria, ex.: onboarding). */
+export function useSettingsState(): Settings | undefined {
+  return useLiveQuery(() => repos.settings.get(), [])
+}
+
 /** Preferências (com valores padrão enquanto carrega). */
 export function useSettings(): Settings {
   return useLiveQuery(() => repos.settings.get(), []) ?? DEFAULT_SETTINGS

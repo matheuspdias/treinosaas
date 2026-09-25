@@ -234,8 +234,7 @@ function Form({ existing }: { existing: CustomExercise | null }) {
                 ref={fileInput}
                 type="file"
                 accept="image/*,video/*"
-                className="sr-only"
-                tabIndex={-1}
+                hidden
                 onChange={(e) => void onFile(e.target.files?.[0])}
               />
               <div className="flex gap-2">

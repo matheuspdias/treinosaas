@@ -104,6 +104,7 @@ export const settingsSchema = z
     restNotification: z.boolean(),
     defaultRestSec: z.number().min(0),
     defaultIncrementKg: z.number().min(0),
+    onboardingDone: z.boolean(),
   })
   .partial()
 

@@ -13,7 +13,7 @@ npm run lint           # eslint
 npm run typecheck      # tsc -b --noEmit
 npm run test           # vitest run
 npm run catalog        # regenera o catálogo de exercícios (scripts/build-catalog.ts)
-npx tsx scripts/generate-icons.ts  # regenera os ícones do PWA
+npm run assets         # regenera ícones e splash screens (pwa-assets.config.ts) a partir de public/logo.svg
 ```
 
 Antes de qualquer commit de fim de fase: `npm run lint && npm run typecheck && npm run test`, tudo verde.
@@ -69,6 +69,12 @@ Regras de dependência (a seta indica "pode importar"):
 - Nomes pt-BR, sinônimos e grupos musculares traduzidos em `src/catalog/i18n/pt-BR.ts`, indexados pelo `id` do dataset.
 - Busca: normalizar com NFD + remoção de diacríticos + lowercase; pesquisar em nome pt-BR, nome em inglês e sinônimos.
 - Referência a exercício em fichas e sessões: `ExerciseRef = { source: 'catalog' | 'custom' | 'exercisedb', id: string }`.
+
+## Compartilhamento e PWA
+
+- Ficha compartilhada vai no **fragmento** da URL (`/importar#<código>`), nunca em query string: o fragmento não chega ao servidor. Formato versionado e validado por Zod em `features/share/shareCodec.ts`; mudou o formato → incremente `v` e mantenha a leitura do antigo.
+- Ícones, splash screens e capturas do manifest ficam em `public/` e são excluídos do precache (`globIgnores`). Ao mudar o logo: `npm run assets` e atualizar as tags `apple-touch-startup-image` do `index.html` (só retrato).
+- Telas leves (ex.: inicial) não devem carregar o catálogo completo: use `useExerciseNames`. Meta de Lighthouse mobile ≥ 90 no primeiro acesso.
 
 ## Mídia
 

@@ -14,7 +14,7 @@ const TABS = [
 ] as const
 
 /** Telas em tela cheia (sem barra de navegação). */
-const FULLSCREEN = [/^\/treino/, /^\/fichas\/[^/]+\/adicionar/]
+const FULLSCREEN = [/^\/treino/, /^\/fichas\/[^/]+\/adicionar/, /^\/boas-vindas/, /^\/importar/]
 
 export function Layout() {
   const { pathname } = useLocation()

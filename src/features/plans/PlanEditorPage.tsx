@@ -1,4 +1,4 @@
-import { Dumbbell, MoreVertical, Play, Plus, StickyNote } from 'lucide-react'
+import { Dumbbell, MoreVertical, Play, Plus, Share2, StickyNote } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { usePlan, usePlans, useSettings } from '@/data/hooks'
@@ -8,6 +8,7 @@ import type { PlanExercise } from '@/domain/types'
 import { formatWeight } from '@/domain/units'
 import { ExerciseThumb } from '@/features/exercises/components/ExerciseThumb'
 import { useExerciseLookup } from '@/features/exercises/hooks/useExerciseLookup'
+import { SharePlanSheet } from '@/features/share/SharePlanSheet'
 import { startWorkout } from '@/features/workout/workoutActions'
 import { cn } from '@/ui/cn'
 import { Button } from '@/ui/components/Button'
@@ -34,6 +35,7 @@ export function PlanEditorPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [optimistic, setOptimistic] = useState<PlanExercise[] | null>(null)
+  const [shareOpen, setShareOpen] = useState(false)
 
   const letter = useMemo(
     () => (plans && plan ? (planLetters(plans).get(plan.id) ?? '') : ''),
@@ -70,11 +72,20 @@ export function PlanEditorPage() {
         title={plan.name}
         subtitle={plan.archivedAt ? 'Arquivada' : undefined}
         actions={
-          <IconButton
-            label="Configurar ficha"
-            icon={<MoreVertical className="size-5" />}
-            onClick={() => setSettingsOpen(true)}
-          />
+          <>
+            {plan.exercises.length > 0 && (
+              <IconButton
+                label="Compartilhar ficha"
+                icon={<Share2 className="size-5" />}
+                onClick={() => setShareOpen(true)}
+              />
+            )}
+            <IconButton
+              label="Configurar ficha"
+              icon={<MoreVertical className="size-5" />}
+              onClick={() => setSettingsOpen(true)}
+            />
+          </>
         }
       />
 
@@ -170,6 +181,13 @@ export function PlanEditorPage() {
         onClose={() => setEditingId(null)}
       />
       <PlanSettingsSheet plan={plan} open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SharePlanSheet
+        plan={plan}
+        letter={letter || 'A'}
+        unit={settings.weightUnit}
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+      />
     </>
   )
 }

@@ -1,14 +1,20 @@
 import { ChevronRight, ClipboardList, Dumbbell, Play, Plus, Timer } from 'lucide-react'
 import { useMemo } from 'react'
-import { Link, useNavigate } from 'react-router'
-import { useActiveSession, useCompletedSessions, usePlans, useSettings } from '@/data/hooks'
+import { Link, Navigate, useNavigate } from 'react-router'
+import {
+  useActiveSession,
+  useCompletedSessions,
+  usePlans,
+  useSettings,
+  useSettingsState,
+} from '@/data/hooks'
 import { formatRelativeDay, greeting } from '@/domain/dates'
 import { formatDurationLong, sessionDurationSec } from '@/domain/duration'
 import { isActivePlan, nextPlanInSequence, sortByOrder } from '@/domain/sequence'
 import type { Plan } from '@/domain/types'
 import { formatVolume } from '@/domain/units'
 import { sessionVolume } from '@/domain/volume'
-import { useExerciseLookup } from '@/features/exercises/hooks/useExerciseLookup'
+import { useExerciseNames } from '@/features/exercises/hooks/useExerciseNames'
 import { PlanBadge } from '@/features/plans/components/PlanBadge'
 import { createNextPlan } from '@/features/plans/planActions'
 import { planLetters } from '@/features/plans/planLetters'
@@ -35,7 +41,8 @@ export function HomePage() {
   const history = useCompletedSessions()
   const active = useActiveSession()
   const { weightUnit } = useSettings()
-  const lookup = useExerciseLookup()
+  const settingsState = useSettingsState()
+  const exerciseName = useExerciseNames()
   const navigate = useNavigate()
   const elapsed = useElapsed(active?.startedAt)
 
@@ -52,7 +59,11 @@ export function HomePage() {
     }
   }, [plans, history])
 
-  if (!view || active === undefined || !history) return <PageSpinner />
+  if (!view || active === undefined || !history || !settingsState) return <PageSpinner />
+  // Primeira abertura (sem nenhum dado): boas-vindas com modelos prontos.
+  if (!settingsState.onboardingDone && plans?.length === 0 && history.length === 0 && !active) {
+    return <Navigate to="/boas-vindas" replace />
+  }
 
   const start = async (plan: Plan) => {
     const session = await startWorkout(plan)
@@ -146,7 +157,7 @@ export function HomePage() {
                       {next.exercises.slice(0, 4).map((e) => (
                         <li key={e.id} className="flex items-center gap-2 truncate">
                           <Dumbbell className="size-4 shrink-0 text-fg-subtle" aria-hidden />
-                          <span className="truncate">{lookup.name(e.exercise)}</span>
+                          <span className="truncate">{exerciseName(e.exercise)}</span>
                         </li>
                       ))}
                       {next.exercises.length > 4 && (

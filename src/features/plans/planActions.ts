@@ -9,6 +9,8 @@ import {
 import { isActivePlan, reindex, sortByOrder } from '@/domain/sequence'
 import { sequenceLetter } from '@/domain/text'
 import type { ExerciseRef, ID, Plan, PlanColor, PlanExercise } from '@/domain/types'
+import { instantiateTemplate } from '@/templates/instantiate'
+import type { WorkoutTemplate } from '@/templates/templates'
 
 const now = () => new Date().toISOString()
 
@@ -128,4 +130,14 @@ export async function restorePlanExercise(
 
 export async function reorderPlanExercises(planId: ID, from: number, to: number): Promise<void> {
   await mutatePlan(planId, (p) => ({ ...p, exercises: moveItem(p.exercises, from, to) }))
+}
+
+/** Cria as fichas de um modelo no fim da sequência e marca o onboarding como feito. */
+export async function applyTemplate(template: WorkoutTemplate): Promise<Plan[]> {
+  const [plans, settings] = await Promise.all([repos.plans.list(), repos.settings.get()])
+  const startOrder = plans.reduce((max, p) => Math.max(max, p.order + 1), 0)
+  const created = instantiateTemplate(template, { startOrder, defaults: settings })
+  await repos.plans.saveMany(created)
+  await repos.settings.update({ onboardingDone: true })
+  return created
 }

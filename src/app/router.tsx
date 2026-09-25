@@ -93,6 +93,24 @@ export const router = createBrowserRouter([
         }),
       },
       {
+        path: 'boas-vindas',
+        lazy: async () => ({
+          Component: (await import('@/features/onboarding/OnboardingPage')).OnboardingPage,
+        }),
+      },
+      {
+        path: 'fichas/modelos',
+        lazy: async () => ({
+          Component: (await import('@/features/plans/TemplatesPage')).TemplatesPage,
+        }),
+      },
+      {
+        path: 'importar',
+        lazy: async () => ({
+          Component: (await import('@/features/share/ImportPlanPage')).ImportPlanPage,
+        }),
+      },
+      {
         path: 'ajustes',
         lazy: async () => ({
           Component: (await import('@/features/settings/SettingsPage')).SettingsPage,

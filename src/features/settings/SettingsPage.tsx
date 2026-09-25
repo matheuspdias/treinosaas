@@ -194,8 +194,7 @@ function Backup() {
         ref={fileInput}
         type="file"
         accept="application/json,.json"
-        className="sr-only"
-        tabIndex={-1}
+        hidden
         onChange={(e) => void doImport(e.target.files?.[0])}
       />
     </div>

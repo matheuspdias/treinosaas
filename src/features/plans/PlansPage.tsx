@@ -1,4 +1,11 @@
-import { ChevronDown, ChevronRight, ClipboardList, MoreVertical, Plus } from 'lucide-react'
+import {
+  ChevronDown,
+  ChevronRight,
+  ClipboardList,
+  LayoutTemplate,
+  MoreVertical,
+  Plus,
+} from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { usePlans } from '@/data/hooks'
@@ -7,6 +14,7 @@ import { isActivePlan, sortByOrder } from '@/domain/sequence'
 import type { Plan } from '@/domain/types'
 import { cn } from '@/ui/cn'
 import { Button } from '@/ui/components/Button'
+import { buttonClass } from '@/ui/components/buttonClass'
 import { Card } from '@/ui/components/Card'
 import { EmptyState } from '@/ui/components/EmptyState'
 import { IconButton } from '@/ui/components/IconButton'
@@ -73,9 +81,18 @@ export function PlansPage() {
           title="Nenhuma ficha ainda"
           description="Monte seus treinos (A, B, C...) com os exercícios, séries e cargas que você faz."
           action={
-            <Button size="lg" block icon={<Plus className="size-5" />} onClick={create}>
-              Criar primeira ficha
-            </Button>
+            <div className="grid gap-2">
+              <Button size="lg" block icon={<Plus className="size-5" />} onClick={create}>
+                Criar primeira ficha
+              </Button>
+              <Link
+                to="/fichas/modelos"
+                className={buttonClass({ variant: 'secondary', block: true })}
+              >
+                <LayoutTemplate className="size-5" />
+                Usar um modelo pronto
+              </Link>
+            </div>
           }
         />
       ) : (
@@ -130,6 +147,13 @@ export function PlansPage() {
           >
             Nova ficha
           </Button>
+          <Link
+            to="/fichas/modelos"
+            className={cn(buttonClass({ variant: 'ghost', block: true }), 'mt-2')}
+          >
+            <LayoutTemplate className="size-5" />
+            Adicionar de um modelo pronto
+          </Link>
 
           {archived.length > 0 && (
             <section className="mt-8">

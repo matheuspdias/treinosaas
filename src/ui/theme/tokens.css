@@ -17,7 +17,7 @@
   --c-border: #d3d7df;
   --c-fg: #0d1117;
   --c-fg-muted: #464e5b;
-  --c-fg-subtle: #6b7380;
+  --c-fg-subtle: #596170;
   --c-accent: #2f7d0f;
   --c-accent-fg: #ffffff;
   --c-accent-soft: #e3f3d6;
@@ -34,15 +34,16 @@
   --c-shadow-card: 0 1px 2px rgb(13 17 23 / 0.06), 0 2px 8px rgb(13 17 23 / 0.04);
   --c-shadow-sheet: 0 -8px 32px rgb(13 17 23 / 0.16);
 
-  --c-plan-red: #d93636;
-  --c-plan-orange: #e3630e;
-  --c-plan-amber: #c98a00;
-  --c-plan-lime: #5a9e0a;
-  --c-plan-emerald: #0f9a6b;
-  --c-plan-cyan: #0a8fb0;
-  --c-plan-blue: #2f63e0;
-  --c-plan-violet: #7a45e0;
-  --c-plan-pink: #d63a8a;
+  /* Cores de ficha: as mesmas vivas nos dois temas; a letra preta por cima passa de 4,5:1 em todas. */
+  --c-plan-red: #ff6161;
+  --c-plan-orange: #ff8a3d;
+  --c-plan-amber: #ffc53d;
+  --c-plan-lime: #b8f24a;
+  --c-plan-emerald: #34d399;
+  --c-plan-cyan: #38c8e8;
+  --c-plan-blue: #6b9bff;
+  --c-plan-violet: #a98bff;
+  --c-plan-pink: #ff7ac0;
 }
 
 [data-theme='dark'] {

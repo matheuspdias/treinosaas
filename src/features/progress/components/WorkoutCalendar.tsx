@@ -81,7 +81,10 @@ export function WorkoutCalendar({ byDay }: { byDay: Map<string, Session[]> }) {
                 const label = `${longDate.format(day)}${trained ? `: ${sessions.map((s) => s.planName).join(', ')}` : ''}`
                 return (
                   <td key={key} className="p-0">
-                    {trained ? (
+                    {!inMonth ? (
+                      // Dias de outros meses ficam em branco (evita números apagados e ilegíveis).
+                      <span className="mx-auto block size-11" aria-hidden />
+                    ) : trained ? (
                       <button
                         type="button"
                         aria-label={label}
@@ -89,7 +92,6 @@ export function WorkoutCalendar({ byDay }: { byDay: Map<string, Session[]> }) {
                         className={cn(
                           'mx-auto flex size-11 items-center justify-center rounded-full text-sm font-bold text-black/85 active:scale-95',
                           color && PLAN_COLOR_CLASS[color].bg,
-                          !inMonth && 'opacity-40',
                           key === todayKey && 'ring-2 ring-fg ring-offset-2 ring-offset-surface',
                         )}
                       >
@@ -100,7 +102,7 @@ export function WorkoutCalendar({ byDay }: { byDay: Map<string, Session[]> }) {
                         aria-label={label}
                         className={cn(
                           'mx-auto flex size-11 items-center justify-center rounded-full text-sm',
-                          inMonth ? 'text-fg-muted' : 'text-fg-subtle/50',
+                          'text-fg-muted',
                           key === todayKey && 'font-bold text-fg ring-2 ring-border',
                         )}
                       >
