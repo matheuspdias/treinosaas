@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { DEFAULT_SETTINGS } from '@/domain/types'
-import type { CustomExercise, ID, Plan, Session, Settings } from '@/domain/types'
+import type { BodyMetric, CustomExercise, ID, Plan, Session, Settings } from '@/domain/types'
 import { repos } from '../index'
 
 /*
@@ -42,4 +42,8 @@ export function useCustomExercise(id: ID | undefined): CustomExercise | null | u
 /** Preferências (com valores padrão enquanto carrega). */
 export function useSettings(): Settings {
   return useLiveQuery(() => repos.settings.get(), []) ?? DEFAULT_SETTINGS
+}
+
+export function useBodyMetrics(): BodyMetric[] | undefined {
+  return useLiveQuery(() => repos.bodyMetrics.list(), [])
 }

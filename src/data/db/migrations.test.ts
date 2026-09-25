@@ -12,6 +12,7 @@ describe('migrations', () => {
     await db.open()
     expect(db.verno).toBe(DB_VERSION)
     expect(db.tables.map((t) => t.name).sort()).toEqual([
+      'bodyMetrics',
       'customExercises',
       'mediaBlobs',
       'plans',
@@ -26,7 +27,7 @@ describe('migrations', () => {
     db.close()
   })
 
-  it('preserva os dados ao reabrir um banco criado na v1', async () => {
+  it('migra um banco da v1 para a v2 preservando os dados', async () => {
     const name = uniqueName()
     // Simula um usuário com a v1 instalada (schema escrito à mão, independente do código atual).
     const v1 = new Dexie(name)
@@ -44,7 +45,19 @@ describe('migrations', () => {
 
     const db = new TreinoDB(name)
     await db.open()
+    expect(db.verno).toBe(DB_VERSION)
     expect(await db.plans.get('p1')).toMatchObject({ name: 'Treino A' })
+    // v2 criou a tabela nova, vazia e utilizável.
+    expect(await db.bodyMetrics.count()).toBe(0)
+    await db.bodyMetrics.put({
+      id: 'b1',
+      date: '2026-01-01',
+      createdAt: 'x',
+      updatedAt: 'x',
+      weightKg: 80,
+      measurementsCm: {},
+    })
+    expect((await db.bodyMetrics.where('date').equals('2026-01-01').first())?.weightKg).toBe(80)
     expect(await db.settings.get('app')).toMatchObject({ value: { weightUnit: 'kg' } })
     db.close()
   })

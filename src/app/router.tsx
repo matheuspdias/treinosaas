@@ -69,6 +69,30 @@ export const router = createBrowserRouter([
         }),
       },
       {
+        path: 'exercicios/:source/:id/historico',
+        lazy: async () => ({
+          Component: (await import('@/features/exercises/ExerciseHistoryPage')).ExerciseHistoryPage,
+        }),
+      },
+      {
+        path: 'progresso',
+        lazy: async () => ({
+          Component: (await import('@/features/progress/ProgressPage')).ProgressPage,
+        }),
+      },
+      {
+        path: 'progresso/recordes',
+        lazy: async () => ({
+          Component: (await import('@/features/progress/RecordsPage')).RecordsPage,
+        }),
+      },
+      {
+        path: 'progresso/corpo',
+        lazy: async () => ({
+          Component: (await import('@/features/progress/BodyPage')).BodyPage,
+        }),
+      },
+      {
         path: 'ajustes',
         lazy: async () => ({
           Component: (await import('@/features/settings/SettingsPage')).SettingsPage,

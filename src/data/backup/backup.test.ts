@@ -31,6 +31,14 @@ async function seed(repos: ReturnType<typeof setup>['repos']) {
     media: { kind: 'blob', blobId, mediaType: 'image', mimeType: 'image/webp' },
   })
   await repos.settings.update({ theme: 'dark' })
+  await repos.bodyMetrics.save({
+    id: 'bm1',
+    createdAt: 'x',
+    updatedAt: 'x',
+    date: '2026-01-10',
+    weightKg: 81.4,
+    measurementsCm: { waist: 84 },
+  })
   return blobId
 }
 
@@ -58,6 +66,9 @@ describe('backup', () => {
     expect((await target.repos.plans.list()).map((p) => p.name)).toEqual(['Treino A'])
     expect(await target.repos.sessions.listCompleted()).toHaveLength(1)
     expect((await target.repos.settings.get()).theme).toBe('dark')
+    expect(await target.repos.bodyMetrics.list()).toMatchObject([
+      { weightKg: 81.4, measurementsCm: { waist: 84 } },
+    ])
     const blob = await target.repos.media.get(blobId)
     expect(Array.from(new Uint8Array(await blob!.blob.arrayBuffer()))).toEqual([1, 2, 3, 250])
   })
@@ -95,5 +106,21 @@ describe('backup', () => {
     const r = parseBackup('[]')
     expect(r.ok).toBe(false)
     expect((await createDexieRepositories(db).plans.list()).map((p) => p.name)).toEqual(['Mantém'])
+  })
+
+  it('importa backup do formato antigo (v1), sem peso e medidas', async () => {
+    const { db, repos } = setup()
+    await seed(repos)
+    const current = await createBackup(db)
+    const { bodyMetrics: _drop, ...dataV1 } = current.data
+    const v1 = { ...current, formatVersion: 1, data: dataV1 }
+    const r = parseBackup(JSON.stringify(v1))
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    expect(r.backup.formatVersion).toBe(2)
+    expect(r.backup.data.bodyMetrics).toEqual([])
+    const target = setup()
+    await restoreBackup(target.db, r.backup)
+    expect(await target.repos.plans.list()).toHaveLength(1)
   })
 })

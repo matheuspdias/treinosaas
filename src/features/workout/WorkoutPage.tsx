@@ -1,11 +1,29 @@
-import { ChevronLeft, ChevronRight, Flag, Flame, ListOrdered, Plus, StickyNote } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  Flag,
+  Flame,
+  History,
+  ListOrdered,
+  Plus,
+  StickyNote,
+} from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useCompletedSessions, useSettings } from '@/data/hooks'
 import { formatClock } from '@/domain/duration'
 import {
+  computeBests,
+  exerciseKey,
+  mergeBests,
+  RECORD_LABEL,
+  setRecordTypes,
+} from '@/domain/records'
+import {
+  acceptProgression,
   addSet,
   adjustRest,
+  dismissProgression,
   findLastPerformance,
   goToExercise,
   hasAnyCompletedSet,
@@ -32,6 +50,7 @@ import { IconButton } from '@/ui/components/IconButton'
 import { PageSpinner } from '@/ui/components/Spinner'
 import { PLAN_COLOR_CLASS } from '@/ui/theme/planColors'
 import { ExerciseListSheet } from './components/ExerciseListSheet'
+import { ProgressionCard } from './components/ProgressionCard'
 import { RestPanel } from './components/RestPanel'
 import { SET_GRID, SetRow } from './components/SetRow'
 import { SetMenuSheet } from './components/SetMenuSheet'
@@ -72,6 +91,7 @@ export function WorkoutPage() {
     () => (exercise && history ? findLastPerformance(history, exercise.exercise) : undefined),
     [exercise, history],
   )
+  const historyBests = useMemo(() => (history ? computeBests(history) : undefined), [history])
 
   if (status !== 'ready') return <PageSpinner />
   if (!session || !exercise) {
@@ -102,6 +122,8 @@ export function WorkoutPage() {
   const menuSet = exercise.sets.find((s) => s.id === menuSetId) ?? null
   const menuLabel = menuSet ? (labels[exercise.sets.indexOf(menuSet)] ?? '') : ''
 
+  const exBests = historyBests?.get(exerciseKey(exercise.exercise))
+
   const previousFor = (set: SetLog, i: number): SetLog | undefined => {
     const pos = labels.slice(0, i).filter((l) => (set.isWarmup ? l === 'A' : l !== 'A')).length
     return set.isWarmup ? lastWarmups[pos] : lastWork[pos]
@@ -110,7 +132,28 @@ export function WorkoutPage() {
   const onToggleDone = (set: SetLog) => {
     unlockAudio()
     if (!set.completedAt) {
-      vibrate(TAP_VIBRATION)
+      // Recorde contra o histórico e contra as séries já feitas hoje (avisa só quando supera de novo).
+      const doneToday = computeBests([
+        {
+          ...session,
+          exercises: [
+            { ...exercise, sets: exercise.sets.filter((s) => s.id !== set.id && s.completedAt) },
+          ],
+        },
+      ]).get(exerciseKey(exercise.exercise))
+      const types = exBests
+        ? setRecordTypes(
+            { ...set, completedAt: new Date().toISOString() },
+            mergeBests(exBests, doneToday),
+          )
+        : []
+      if (types.length > 0) {
+        vibrate([60, 40, 60, 40, 140])
+        toast(`Novo recorde! ${types.map((t) => RECORD_LABEL[t]).join(' · ')}`, {
+          tone: 'success',
+          duration: 5000,
+        })
+      } else vibrate(TAP_VIBRATION)
       if (settings.restNotification && notificationPermission() === 'default')
         void requestNotificationPermission()
     }
@@ -235,12 +278,34 @@ export function WorkoutPage() {
           className="aspect-[16/10] max-h-[30dvh]"
         />
 
-        <h1 className="mt-4 text-2xl leading-tight font-extrabold tracking-tight">
-          {exercise.exerciseName}
-        </h1>
+        <div className="mt-4 flex items-start gap-2">
+          <h1 className="min-w-0 flex-1 text-2xl leading-tight font-extrabold tracking-tight">
+            {exercise.exerciseName}
+          </h1>
+          <IconButton
+            label={`Histórico de ${exercise.exerciseName}`}
+            variant="secondary"
+            icon={<History className="size-5" />}
+            onClick={() =>
+              navigate(
+                `/exercicios/${exercise.exercise.source}/${encodeURIComponent(exercise.exercise.id)}/historico`,
+              )
+            }
+          />
+        </div>
         <p className="mt-1 text-fg-muted tabular">
           {workTotal} × {repRange(exercise)} reps · descanso {formatClock(exercise.target.restSec)}
         </p>
+
+        {exercise.progression && (
+          <ProgressionCard
+            suggestion={exercise.progression}
+            repMax={exercise.target.repMax}
+            unit={settings.weightUnit}
+            onAccept={() => apply((s) => acceptProgression(s, exercise.id))}
+            onDismiss={() => apply((s) => dismissProgression(s, exercise.id))}
+          />
+        )}
 
         {exercise.notes && (
           <p className="mt-3 flex gap-2 rounded-control bg-warning-soft px-3 py-2.5 text-sm font-medium text-fg">
@@ -291,6 +356,7 @@ export function WorkoutPage() {
                 onChange={(patch) => apply((s) => updateSet(s, exercise.id, set.id, patch))}
                 onToggleDone={() => onToggleDone(set)}
                 onOpenMenu={() => setMenuSetId(set.id)}
+                record={setRecordTypes(set, exBests).length > 0}
               />
             ))}
           </div>

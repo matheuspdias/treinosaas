@@ -1,4 +1,7 @@
 import {
+  ChevronLeft,
+  ChevronRight,
+  Trash2,
   ArrowDownRight,
   ArrowUpRight,
   CircleCheckBig,
@@ -10,7 +13,11 @@ import {
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
+import { repos } from '@/data'
+import { confirm } from '@/stores/confirmStore'
+import { toast } from '@/stores/toastStore'
+import { IconButton } from '@/ui/components/IconButton'
 import { useCompletedSessions, useSession, useSettings } from '@/data/hooks'
 import { compareSessions, findPreviousSessionOfPlan } from '@/domain/comparison'
 import { formatDurationLong } from '@/domain/duration'
@@ -93,6 +100,7 @@ export function SummaryPage() {
   const session = useSession(sessionId)
   const history = useCompletedSessions()
   const { weightUnit: unit } = useSettings()
+  const navigate = useNavigate()
 
   const data = useMemo(() => {
     if (!session || !history) return null
@@ -121,8 +129,27 @@ export function SummaryPage() {
 
   const { records, previous, comparison: c } = data
 
+  const remove = async () => {
+    const ok = await confirm({
+      title: 'Excluir este treino?',
+      description: 'Ele sai do histórico, do calendário e das estatísticas. Não dá para desfazer.',
+      confirmLabel: 'Excluir treino',
+      tone: 'danger',
+    })
+    if (!ok) return
+    await repos.sessions.remove(session.id)
+    toast('Treino excluído.')
+    navigate('/', { replace: true })
+  }
+
   return (
-    <div className="px-4 pt-6 safe-top pb-32">
+    <div className="px-4 pt-2 safe-top pb-32">
+      <IconButton
+        label="Voltar"
+        icon={<ChevronLeft className="size-7" />}
+        onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+        className="-ml-2"
+      />
       <div className="celebrate-in text-center">
         <span className="mx-auto flex size-20 items-center justify-center rounded-full bg-accent text-accent-fg">
           <CircleCheckBig className="size-10" strokeWidth={2.4} />
@@ -232,7 +259,13 @@ export function SummaryPage() {
               <ul className="divide-y divide-border">
                 {c.exercises.map((e) => (
                   <li key={e.key} className="p-4">
-                    <p className="font-semibold">{e.name}</p>
+                    <Link
+                      to={`/exercicios/${e.key.replace(':', '/')}/historico`}
+                      className="inline-flex min-h-11 items-center gap-1 font-semibold underline-offset-4 active:underline"
+                    >
+                      {e.name}
+                      <ChevronRight className="size-4 text-fg-subtle" aria-hidden />
+                    </Link>
                     <div className="mt-1 grid grid-cols-2 gap-2 text-sm">
                       <p>
                         <span className="text-fg-muted">Carga máx. </span>
@@ -265,6 +298,15 @@ export function SummaryPage() {
           </p>
         )}
       </section>
+
+      <button
+        type="button"
+        onClick={() => void remove()}
+        className="mx-auto mt-8 flex min-h-touch items-center gap-2 px-4 text-sm font-semibold text-danger"
+      >
+        <Trash2 className="size-4" aria-hidden />
+        Excluir este treino
+      </button>
 
       <div className="fixed inset-x-0 bottom-0 z-20 bg-gradient-to-t from-bg via-bg to-transparent pt-6 safe-bottom">
         <div className="mx-auto max-w-2xl px-4 pb-4">

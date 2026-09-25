@@ -1,7 +1,7 @@
 import { z } from 'zod'
-import { EQUIPMENT, MUSCLES, PLAN_COLORS } from '@/domain/types'
+import { BODY_MEASURES, EQUIPMENT, MUSCLES, PLAN_COLORS } from '@/domain/types'
 
-export const BACKUP_FORMAT_VERSION = 1
+export const BACKUP_FORMAT_VERSION = 2
 export const BACKUP_APP_ID = 'treinoapp'
 
 const iso = z.string().min(1)
@@ -64,6 +64,13 @@ export const sessionSchema = z.object({
       target: z.object(target),
       notes: z.string(),
       sets: z.array(setLog),
+      progression: z
+        .object({
+          fromKg: z.number().min(0),
+          toKg: z.number().min(0),
+          status: z.enum(['pending', 'accepted', 'dismissed']),
+        })
+        .optional(),
     }),
   ),
 })
@@ -100,6 +107,14 @@ export const settingsSchema = z
   })
   .partial()
 
+export const bodyMetricSchema = z.object({
+  ...entity,
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  weightKg: z.number().positive().optional(),
+  bodyFatPct: z.number().min(0).max(100).optional(),
+  measurementsCm: z.partialRecord(z.enum(BODY_MEASURES), z.number().positive()),
+})
+
 export const mediaBlobSchema = z.object({
   id: z.string().min(1),
   mimeType: z.string(),
@@ -116,6 +131,7 @@ export const backupSchema = z.object({
     sessions: z.array(sessionSchema),
     customExercises: z.array(customExerciseSchema),
     mediaBlobs: z.array(mediaBlobSchema),
+    bodyMetrics: z.array(bodyMetricSchema),
     settings: settingsSchema,
   }),
 })

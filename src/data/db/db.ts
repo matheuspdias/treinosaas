@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie'
-import type { CustomExercise, MediaBlob, Plan, Session } from '@/domain/types'
+import type { BodyMetric, CustomExercise, MediaBlob, Plan, Session } from '@/domain/types'
 import { applyMigrations } from './migrations'
 
 export interface SettingRow {
@@ -13,6 +13,7 @@ export class TreinoDB extends Dexie {
   mediaBlobs!: Table<MediaBlob, string>
   sessions!: Table<Session, string>
   settings!: Table<SettingRow, string>
+  bodyMetrics!: Table<BodyMetric, string>
 
   constructor(name = 'treinoapp') {
     super(name)

@@ -1,4 +1,5 @@
 import type { ExerciseRef, ID, ISODate, Plan, Session, SessionExercise, SetLog } from './types'
+import { suggestProgression } from './progression'
 import { exerciseKey } from './records'
 import { isWorkSet, topWorkWeight } from './volume'
 
@@ -95,22 +96,27 @@ export function createSessionFromPlan({
     startedAt: now,
     currentExerciseIndex: 0,
     rest: null,
-    exercises: plan.exercises.map((pe) => ({
-      id: clock.newId(),
-      planExerciseId: pe.id,
-      exercise: pe.exercise,
-      exerciseName: resolveName(pe.exercise),
-      notes: pe.notes,
-      target: {
-        sets: pe.sets,
-        repMin: pe.repMin,
-        repMax: pe.repMax,
-        loadKg: pe.loadKg,
-        restSec: pe.restSec,
-        incrementKg: pe.incrementKg,
-      },
-      sets: prefillSets(pe, findLastPerformance(history, pe.exercise), clock.newId),
-    })),
+    exercises: plan.exercises.map((pe) => {
+      const last = findLastPerformance(history, pe.exercise)
+      const suggestion = suggestProgression(last, pe)
+      return {
+        id: clock.newId(),
+        planExerciseId: pe.id,
+        exercise: pe.exercise,
+        exerciseName: resolveName(pe.exercise),
+        notes: pe.notes,
+        target: {
+          sets: pe.sets,
+          repMin: pe.repMin,
+          repMax: pe.repMax,
+          loadKg: pe.loadKg,
+          restSec: pe.restSec,
+          incrementKg: pe.incrementKg,
+        },
+        sets: prefillSets(pe, last, clock.newId),
+        ...(suggestion ? { progression: { ...suggestion, status: 'pending' as const } } : {}),
+      }
+    }),
   }
 }
 
@@ -261,6 +267,45 @@ export function goToExercise(
 ): Session {
   const clamped = Math.min(Math.max(0, index), session.exercises.length - 1)
   return touch({ ...session, currentExerciseIndex: clamped }, now)
+}
+
+/** Aceita a sugestão: séries de trabalho ainda não feitas passam para a nova carga. */
+export function acceptProgression(
+  session: Session,
+  exerciseId: ID,
+  now: ISODate = new Date().toISOString(),
+): Session {
+  return touch(
+    {
+      ...session,
+      exercises: mapExercise(session, exerciseId, (e) => {
+        if (!e.progression) return e
+        const toKg = e.progression.toKg
+        return {
+          ...e,
+          progression: { ...e.progression, status: 'accepted' },
+          sets: e.sets.map((s) => (s.isWarmup || s.completedAt ? s : { ...s, weightKg: toKg })),
+        }
+      }),
+    },
+    now,
+  )
+}
+
+export function dismissProgression(
+  session: Session,
+  exerciseId: ID,
+  now: ISODate = new Date().toISOString(),
+): Session {
+  return touch(
+    {
+      ...session,
+      exercises: mapExercise(session, exerciseId, (e) =>
+        e.progression ? { ...e, progression: { ...e.progression, status: 'dismissed' } } : e,
+      ),
+    },
+    now,
+  )
 }
 
 /**

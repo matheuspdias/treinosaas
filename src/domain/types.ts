@@ -146,6 +146,13 @@ export interface SetLog {
   completedAt?: ISODate
 }
 
+/** Sugestão de dupla progressão calculada ao iniciar o treino. */
+export interface ProgressionSuggestion {
+  fromKg: number
+  toKg: number
+  status: 'pending' | 'accepted' | 'dismissed'
+}
+
 export interface SessionExercise {
   id: ID
   planExerciseId?: ID
@@ -155,6 +162,7 @@ export interface SessionExercise {
   target: ExerciseTarget
   notes: string
   sets: SetLog[]
+  progression?: ProgressionSuggestion
 }
 
 export type SessionStatus = 'in_progress' | 'completed'
@@ -175,6 +183,22 @@ export interface Session extends Entity {
   currentExerciseIndex: number
   rest: RestTimer | null
   exercises: SessionExercise[]
+}
+
+// ---------------------------------------------------------------------------
+// Corpo
+// ---------------------------------------------------------------------------
+
+export const BODY_MEASURES = ['waist', 'chest', 'hips', 'arm', 'thigh', 'calf'] as const
+export type BodyMeasure = (typeof BODY_MEASURES)[number]
+
+/** Registro de peso e medidas num dia. Medidas em cm. */
+export interface BodyMetric extends Entity {
+  /** Dia local, AAAA-MM-DD. */
+  date: string
+  weightKg?: number
+  bodyFatPct?: number
+  measurementsCm: Partial<Record<BodyMeasure, number>>
 }
 
 // ---------------------------------------------------------------------------

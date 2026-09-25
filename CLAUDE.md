@@ -83,6 +83,8 @@ Regras de dependência (a seta indica "pode importar"):
 - Nada depende de hover. Todo estado de hover tem equivalente em `active:` e `focus-visible:`.
 - Cores só pelos tokens (`bg-surface`, `text-fg`, `text-fg-muted`, `bg-accent`...). Nunca usar cor crua do Tailwind (`bg-blue-500`) nem hex em componente. Tokens em `src/ui/theme/tokens.css` com variantes clara e escura.
 - Tema: `system` | `light` | `dark`, aplicado via atributo `data-theme` no `<html>`.
+- Classes condicionais sempre via `cn()` (`src/ui/cn.ts`), que usa tailwind-merge configurado com os tokens próprios: a classe passada por último vence (`cn(base, 'px-1')`). Token novo de espaçamento/raio/sombra precisa ser registrado lá.
+- Gráficos: componentes em `src/ui/charts/`, cores só pelos tokens `--c-chart*` (lidas por `useChartTheme`, pois atributos SVG não aceitam `var()`). Série única sem legenda; linhas de 2px; colunas ≤ 24px com topo arredondado de 4px; eixo Y com números redondos (`niceScale`); nunca dois eixos Y. Cor de série nova deve passar no validador de paleta nos dois temas.
 - Animações respeitam `prefers-reduced-motion` (a mídia animada vira imagem estática com botão de play).
 - Todo input tem `<label>` associado; todo botão só com ícone tem `aria-label`.
 
@@ -93,7 +95,7 @@ Regras de dependência (a seta indica "pode importar"):
 - Exports nomeados; `default` só onde o tooling exige (rotas lazy).
 - Import absoluto com alias `@/` para `src/`.
 - Testes ao lado do código: `progression.ts` → `progression.test.ts`. Testes que usam IndexedDB com Blob rodam com `// @vitest-environment node` (o Blob do jsdom não sobrevive ao structuredClone).
-- Obrigatório testar: sequência de fichas, volume, 1RM (Epley), recordes, progressão, import/export, migrations, busca normalizada, conversão de unidades.
+- Obrigatório testar: sequência de fichas, volume, 1RM (Epley), recordes, progressão, import/export (inclusive backup de versão antiga), migrations, busca normalizada, conversão de unidades, calendário/sequência de semanas e estatísticas.
 
 ## Fluxo de trabalho
 

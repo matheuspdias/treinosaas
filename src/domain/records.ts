@@ -1,5 +1,5 @@
 import { epley1RM } from './oneRepMax'
-import type { ExerciseRef, Session } from './types'
+import type { ExerciseRef, Session, SetLog } from './types'
 import { isWorkSet } from './volume'
 
 export type RecordType = 'weight' | 'e1rm' | 'setVolume'
@@ -81,4 +81,31 @@ export function detectBrokenRecords(session: Session, history: readonly Session[
     }
   }
   return result
+}
+
+/**
+ * Recordes que uma série bate em relação às melhores marcas anteriores.
+ * Sem marcas anteriores (primeira vez no exercício), não há recorde.
+ */
+export function setRecordTypes(set: SetLog, previous: ExerciseBests | undefined): RecordType[] {
+  if (!previous || !isWorkSet(set)) return []
+  const out: RecordType[] = []
+  if (set.weightKg > previous.weight + 1e-9) out.push('weight')
+  if (epley1RM(set.weightKg, set.reps) > previous.e1rm + 1e-9) out.push('e1rm')
+  if (set.weightKg * set.reps > previous.setVolume + 1e-9) out.push('setVolume')
+  return out
+}
+
+/** Maior de cada marca entre dois conjuntos de melhores marcas. */
+export function mergeBests(
+  a: ExerciseBests | undefined,
+  b: ExerciseBests | undefined,
+): ExerciseBests | undefined {
+  if (!a) return b
+  if (!b) return a
+  return {
+    weight: Math.max(a.weight, b.weight),
+    e1rm: Math.max(a.e1rm, b.e1rm),
+    setVolume: Math.max(a.setVolume, b.setVolume),
+  }
 }

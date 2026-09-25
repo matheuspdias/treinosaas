@@ -1,5 +1,5 @@
 import { session, sessionExercise, set } from '@/test/factories'
-import { computeBests, detectBrokenRecords } from './records'
+import { computeBests, detectBrokenRecords, mergeBests, setRecordTypes } from './records'
 
 describe('records', () => {
   const old = session('2026-01-01T10:00:00Z', [sessionExercise('bench', [set(80, 8), set(85, 5)])])
@@ -41,5 +41,28 @@ describe('records', () => {
   it('ignora a própria sessão se ela estiver no histórico', () => {
     const now = session('2026-01-08T10:00:00Z', [sessionExercise('bench', [set(90, 5)])])
     expect(detectBrokenRecords(now, [old, now]).map((b) => b.type)).toContain('weight')
+  })
+})
+
+describe('setRecordTypes', () => {
+  const prev = { weight: 80, e1rm: 100, setVolume: 800 }
+  it('detecta cada tipo de recorde da série', () => {
+    expect(setRecordTypes(set(85, 1), prev)).toEqual(['weight'])
+    expect(setRecordTypes(set(80, 10), prev)).toEqual(['e1rm'])
+    expect(setRecordTypes(set(70, 12), prev)).toEqual(['setVolume'])
+    expect(setRecordTypes(set(90, 10), prev)).toEqual(['weight', 'e1rm', 'setVolume'])
+  })
+  it('sem histórico, aquecimento ou série não concluída não são recorde', () => {
+    expect(setRecordTypes(set(200, 10), undefined)).toEqual([])
+    expect(setRecordTypes(set(200, 10, { isWarmup: true }), prev)).toEqual([])
+    expect(setRecordTypes(set(200, 10, { completedAt: undefined }), prev)).toEqual([])
+  })
+  it('mergeBests pega o maior de cada marca', () => {
+    expect(mergeBests(prev, { weight: 90, e1rm: 95, setVolume: 900 })).toEqual({
+      weight: 90,
+      e1rm: 100,
+      setVolume: 900,
+    })
+    expect(mergeBests(undefined, prev)).toBe(prev)
   })
 })

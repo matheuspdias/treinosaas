@@ -1,4 +1,4 @@
-import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { History, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { CATEGORY_PT_BR, EQUIPMENT_PT_BR, MUSCLE_PT_BR } from '@/catalog/i18n/pt-BR'
@@ -129,6 +129,13 @@ export function ExerciseDetailPage() {
           </section>
         )}
 
+        <Link
+          to={`/exercicios/${ref.source}/${encodeURIComponent(ref.id)}/historico`}
+          className={buttonClass({ variant: 'secondary', block: true, size: 'lg' })}
+        >
+          <History className="size-5" />
+          Ver histórico e recordes
+        </Link>
         <Button size="lg" block icon={<Plus className="size-5" />} onClick={() => setAdding(true)}>
           Adicionar a uma ficha
         </Button>

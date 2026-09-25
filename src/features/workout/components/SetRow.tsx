@@ -1,5 +1,5 @@
 export const SET_GRID = 'grid grid-cols-[2.75rem_minmax(0,1fr)_5rem_4rem_3rem] gap-x-1.5'
-import { Check } from 'lucide-react'
+import { Check, Trophy } from 'lucide-react'
 import type { SetLog, WeightUnit } from '@/domain/types'
 import { formatWeight, fromDisplayUnit, roundKg, toDisplayUnit } from '@/domain/units'
 import { cn } from '@/ui/cn'
@@ -14,9 +14,20 @@ interface Props {
   onChange: (patch: Partial<Pick<SetLog, 'weightKg' | 'reps'>>) => void
   onToggleDone: () => void
   onOpenMenu: () => void
+  /** Série concluída que bateu recorde pessoal. */
+  record?: boolean
 }
 
-export function SetRow({ set, label, previous, unit, onChange, onToggleDone, onOpenMenu }: Props) {
+export function SetRow({
+  set,
+  label,
+  previous,
+  unit,
+  onChange,
+  onToggleDone,
+  onOpenMenu,
+  record = false,
+}: Props) {
   const done = !!set.completedAt
   const setName = set.isWarmup ? 'aquecimento' : `série ${label}`
   const display =
@@ -33,13 +44,17 @@ export function SetRow({ set, label, previous, unit, onChange, onToggleDone, onO
       <button
         type="button"
         onClick={onOpenMenu}
-        aria-label={`Opções da ${setName}`}
+        aria-label={`Opções da ${setName}${record ? ' (recorde pessoal)' : ''}`}
         className={cn(
           'flex size-11 items-center justify-center rounded-full text-sm font-bold',
-          set.isWarmup ? 'bg-warning-soft text-warning' : 'bg-surface-2 text-fg-muted',
+          record
+            ? 'bg-warning text-bg'
+            : set.isWarmup
+              ? 'bg-warning-soft text-warning'
+              : 'bg-surface-2 text-fg-muted',
         )}
       >
-        {label}
+        {record ? <Trophy className="size-5" aria-hidden /> : label}
       </button>
       <span
         className="truncate text-center text-sm text-fg-subtle tabular"

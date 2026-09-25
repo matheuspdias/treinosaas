@@ -1,4 +1,4 @@
-import { ClipboardList, Dumbbell, House, Settings } from 'lucide-react'
+import { ChartNoAxesColumnIncreasing, ClipboardList, Dumbbell, House, Settings } from 'lucide-react'
 import { Suspense } from 'react'
 import { NavLink, Outlet, ScrollRestoration, useLocation, useNavigation } from 'react-router'
 import { cn } from '@/ui/cn'
@@ -8,6 +8,7 @@ import { ActiveWorkoutBar } from './ActiveWorkoutBar'
 const TABS = [
   { to: '/', label: 'Início', icon: House, end: true },
   { to: '/fichas', label: 'Fichas', icon: ClipboardList, end: false },
+  { to: '/progresso', label: 'Progresso', icon: ChartNoAxesColumnIncreasing, end: false },
   { to: '/exercicios', label: 'Exercícios', icon: Dumbbell, end: false },
   { to: '/ajustes', label: 'Ajustes', icon: Settings, end: false },
 ] as const
@@ -48,7 +49,7 @@ export function Layout() {
               aria-label="Principal"
               className="border-t border-border bg-surface/95 safe-bottom backdrop-blur-md"
             >
-              <ul className="grid grid-cols-4">
+              <ul className="grid grid-cols-5">
                 {TABS.map(({ to, label, icon: Icon, end }) => (
                   <li key={to}>
                     <NavLink

@@ -27,6 +27,10 @@
   --c-warning: #8a5a00;
   --c-warning-soft: #fdf0d2;
   --c-focus: #1f6feb;
+  /* Série única dos gráficos (validada: faixa de luminosidade + contraste ≥ 3:1). */
+  --c-chart: #2f7d0f;
+  --c-chart-muted: #c9ced8;
+  --c-chart-grid: #e6e9ee;
   --c-shadow-card: 0 1px 2px rgb(13 17 23 / 0.06), 0 2px 8px rgb(13 17 23 / 0.04);
   --c-shadow-sheet: 0 -8px 32px rgb(13 17 23 / 0.16);
 
@@ -59,6 +63,9 @@
   --c-warning: #fbbf24;
   --c-warning-soft: #3a2e12;
   --c-focus: #7cb7ff;
+  --c-chart: #6aa824;
+  --c-chart-muted: #3a414d;
+  --c-chart-grid: #232831;
   --c-shadow-card: 0 1px 0 rgb(255 255 255 / 0.03) inset;
   --c-shadow-sheet: 0 -8px 40px rgb(0 0 0 / 0.6);
 

@@ -20,12 +20,13 @@ export function base64ToBlob(base64: string, mimeType: string): Blob {
 }
 
 export async function createBackup(db: TreinoDB, now = new Date()): Promise<BackupFile> {
-  const [plans, sessions, customExercises, blobs, settingsRow] = await Promise.all([
+  const [plans, sessions, customExercises, blobs, settingsRow, bodyMetrics] = await Promise.all([
     db.plans.toArray(),
     db.sessions.toArray(),
     db.customExercises.toArray(),
     db.mediaBlobs.toArray(),
     db.settings.get('app'),
+    db.bodyMetrics.toArray(),
   ])
   return {
     app: BACKUP_APP_ID,
@@ -43,17 +44,24 @@ export async function createBackup(db: TreinoDB, now = new Date()): Promise<Back
           dataBase64: await blobToBase64(b.blob),
         })),
       ),
+      bodyMetrics,
       settings: (settingsRow?.value as BackupFile['data']['settings'] | undefined) ?? {},
     },
   }
 }
 
-/**
- * Converte backups de formatos antigos para o atual. Hoje só existe a v1.
- * Ao criar a v2: `if (raw.formatVersion === 1) raw = migrateV1toV2(raw)`.
- */
+type RawBackup = { formatVersion?: unknown; data?: Record<string, unknown> }
+
+/** v1 → v2: surgiram os registros de peso e medidas. */
+function migrateV1toV2(raw: RawBackup): RawBackup {
+  return { ...raw, formatVersion: 2, data: { ...raw.data, bodyMetrics: [] } }
+}
+
+/** Converte backups de formatos antigos para o atual, um passo por versão. */
 export function migrateBackup(raw: unknown): unknown {
-  return raw
+  let current = raw as RawBackup
+  if (current.formatVersion === 1) current = migrateV1toV2(current)
+  return current
 }
 
 export type ParseBackupResult =
@@ -108,7 +116,7 @@ export async function restoreBackup(db: TreinoDB, backup: BackupFile): Promise<v
   const { data } = backup
   await db.transaction(
     'rw',
-    [db.plans, db.sessions, db.customExercises, db.mediaBlobs, db.settings],
+    [db.plans, db.sessions, db.customExercises, db.mediaBlobs, db.settings, db.bodyMetrics],
     async () => {
       await Promise.all([
         db.plans.clear(),
@@ -116,6 +124,7 @@ export async function restoreBackup(db: TreinoDB, backup: BackupFile): Promise<v
         db.customExercises.clear(),
         db.mediaBlobs.clear(),
         db.settings.clear(),
+        db.bodyMetrics.clear(),
       ])
       await db.plans.bulkPut(data.plans)
       await db.sessions.bulkPut(data.sessions)
@@ -128,6 +137,7 @@ export async function restoreBackup(db: TreinoDB, backup: BackupFile): Promise<v
           blob: base64ToBlob(b.dataBase64, b.mimeType),
         })),
       )
+      await db.bodyMetrics.bulkPut(data.bodyMetrics)
       await db.settings.put({ key: 'app', value: data.settings })
     },
   )

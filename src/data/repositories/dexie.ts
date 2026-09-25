@@ -76,6 +76,20 @@ export function createDexieRepositories(db: TreinoDB): Repositories {
       },
     },
 
+    bodyMetrics: {
+      async list() {
+        const all = await db.bodyMetrics.orderBy('date').toArray()
+        return all.filter((m) => !m.deletedAt)
+      },
+      async save(metric) {
+        await db.bodyMetrics.put(metric)
+      },
+      async remove(id) {
+        const now = nowIso()
+        await db.bodyMetrics.update(id, { deletedAt: now, updatedAt: now })
+      },
+    },
+
     settings: {
       async get() {
         const row = await db.settings.get(SETTINGS_KEY)

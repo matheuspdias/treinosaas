@@ -1,4 +1,12 @@
-import type { CustomExercise, ID, MediaBlob, Plan, Session, Settings } from '@/domain/types'
+import type {
+  BodyMetric,
+  CustomExercise,
+  ID,
+  MediaBlob,
+  Plan,
+  Session,
+  Settings,
+} from '@/domain/types'
 
 /*
  * Contratos de acesso a dados. As telas dependem só destas interfaces;
@@ -42,10 +50,18 @@ export interface SettingsRepository {
   update(patch: Partial<Settings>): Promise<void>
 }
 
+export interface BodyMetricRepository {
+  /** Registros não excluídos, do mais antigo para o mais recente. */
+  list(): Promise<BodyMetric[]>
+  save(metric: BodyMetric): Promise<void>
+  remove(id: ID): Promise<void>
+}
+
 export interface Repositories {
   plans: PlanRepository
   sessions: SessionRepository
   customExercises: CustomExerciseRepository
   media: MediaRepository
   settings: SettingsRepository
+  bodyMetrics: BodyMetricRepository
 }
