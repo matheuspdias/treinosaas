@@ -1,0 +1,74 @@
+/*
+ * Design tokens. Toda cor da interface sai daqui.
+ * O tema é aplicado por data-theme="light|dark" no <html> (ver src/ui/theme/theme.ts).
+ * Contraste: fg/bg ≥ 15:1, fg-muted/bg ≥ 7:1, accent-fg/accent ≥ 7:1 nos dois temas.
+ */
+
+:root {
+  --c-ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root,
+[data-theme='light'] {
+  --c-bg: #f4f5f7;
+  --c-surface: #ffffff;
+  --c-surface-2: #eceef2;
+  --c-surface-3: #dfe2e8;
+  --c-border: #d3d7df;
+  --c-fg: #0d1117;
+  --c-fg-muted: #464e5b;
+  --c-fg-subtle: #6b7380;
+  --c-accent: #2f7d0f;
+  --c-accent-fg: #ffffff;
+  --c-accent-soft: #e3f3d6;
+  --c-danger: #c21f2f;
+  --c-danger-soft: #fde4e6;
+  --c-success: #1d7a3a;
+  --c-warning: #8a5a00;
+  --c-warning-soft: #fdf0d2;
+  --c-focus: #1f6feb;
+  --c-shadow-card: 0 1px 2px rgb(13 17 23 / 0.06), 0 2px 8px rgb(13 17 23 / 0.04);
+  --c-shadow-sheet: 0 -8px 32px rgb(13 17 23 / 0.16);
+
+  --c-plan-red: #d93636;
+  --c-plan-orange: #e3630e;
+  --c-plan-amber: #c98a00;
+  --c-plan-lime: #5a9e0a;
+  --c-plan-emerald: #0f9a6b;
+  --c-plan-cyan: #0a8fb0;
+  --c-plan-blue: #2f63e0;
+  --c-plan-violet: #7a45e0;
+  --c-plan-pink: #d63a8a;
+}
+
+[data-theme='dark'] {
+  --c-bg: #0b0d10;
+  --c-surface: #15181d;
+  --c-surface-2: #1d2128;
+  --c-surface-3: #272c35;
+  --c-border: #2f3540;
+  --c-fg: #f3f5f8;
+  --c-fg-muted: #b3bac6;
+  --c-fg-subtle: #8a93a1;
+  --c-accent: #b8f24a;
+  --c-accent-fg: #0b0d10;
+  --c-accent-soft: #24331a;
+  --c-danger: #ff6b6b;
+  --c-danger-soft: #3a1c1f;
+  --c-success: #4ade80;
+  --c-warning: #fbbf24;
+  --c-warning-soft: #3a2e12;
+  --c-focus: #7cb7ff;
+  --c-shadow-card: 0 1px 0 rgb(255 255 255 / 0.03) inset;
+  --c-shadow-sheet: 0 -8px 40px rgb(0 0 0 / 0.6);
+
+  --c-plan-red: #ff6161;
+  --c-plan-orange: #ff8a3d;
+  --c-plan-amber: #ffc53d;
+  --c-plan-lime: #b8f24a;
+  --c-plan-emerald: #34d399;
+  --c-plan-cyan: #38c8e8;
+  --c-plan-blue: #6b9bff;
+  --c-plan-violet: #a98bff;
+  --c-plan-pink: #ff7ac0;
+}

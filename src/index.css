@@ -1,0 +1,169 @@
+@import '@fontsource-variable/inter/wght.css';
+@import 'tailwindcss';
+@import './ui/theme/tokens.css';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Mapeia os tokens (variáveis CSS que mudam por tema) para utilitários do Tailwind. */
+@theme inline {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-surface-3: var(--c-surface-3);
+  --color-border: var(--c-border);
+  --color-fg: var(--c-fg);
+  --color-fg-muted: var(--c-fg-muted);
+  --color-fg-subtle: var(--c-fg-subtle);
+  --color-accent: var(--c-accent);
+  --color-accent-fg: var(--c-accent-fg);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-danger: var(--c-danger);
+  --color-danger-soft: var(--c-danger-soft);
+  --color-success: var(--c-success);
+  --color-warning: var(--c-warning);
+  --color-warning-soft: var(--c-warning-soft);
+  --color-focus: var(--c-focus);
+
+  --color-plan-red: var(--c-plan-red);
+  --color-plan-orange: var(--c-plan-orange);
+  --color-plan-amber: var(--c-plan-amber);
+  --color-plan-lime: var(--c-plan-lime);
+  --color-plan-emerald: var(--c-plan-emerald);
+  --color-plan-cyan: var(--c-plan-cyan);
+  --color-plan-blue: var(--c-plan-blue);
+  --color-plan-violet: var(--c-plan-violet);
+  --color-plan-pink: var(--c-plan-pink);
+
+  --radius-card: 1.25rem;
+  --radius-control: 0.875rem;
+
+  --spacing-touch: 3rem; /* 48px: alvo de toque mínimo */
+  --spacing-touch-lg: 3.5rem; /* 56px: ações primárias do modo treino */
+
+  --text-display: 3rem;
+  --text-display--line-height: 1;
+  --text-display--font-weight: 800;
+  --text-display--letter-spacing: -0.03em;
+
+  --shadow-card: var(--c-shadow-card);
+  --shadow-sheet: var(--c-shadow-sheet);
+
+  --ease-out-soft: var(--c-ease-soft);
+}
+
+@layer base {
+  html {
+    background: var(--c-bg);
+    color-scheme: light dark;
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-bg font-sans text-fg antialiased;
+    min-height: 100dvh;
+    overscroll-behavior-y: none;
+  }
+  :focus-visible {
+    outline: 3px solid var(--c-focus);
+    outline-offset: 2px;
+  }
+  input[type='search']::-webkit-search-cancel-button,
+  input[type='search']::-webkit-search-decoration {
+    appearance: none;
+  }
+  input,
+  textarea,
+  select {
+    /* Evita zoom automático do iOS em campos com fonte < 16px. */
+    font-size: max(16px, 1em);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* ---------------------------------------------------------------------------
+ * Animações (todas neutralizadas por prefers-reduced-motion no @layer base)
+ * ------------------------------------------------------------------------- */
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  60% {
+    transform: scale(1.04);
+  }
+}
+@keyframes glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--c-warning) 0%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in oklab, var(--c-warning) 25%, transparent);
+  }
+}
+
+dialog.sheet[open] {
+  animation: sheet-in 0.32s var(--c-ease-soft);
+}
+dialog.sheet[open]::backdrop {
+  animation: fade-in 0.25s ease-out;
+}
+@media (min-width: 40rem) {
+  dialog.sheet[open] {
+    animation: pop-in 0.25s var(--c-ease-soft);
+  }
+}
+.toast-in {
+  animation: rise-in 0.25s var(--c-ease-soft);
+}
+.rest-in {
+  animation: rise-in 0.3s var(--c-ease-soft);
+}
+.exercise-in {
+  animation: fade-in 0.25s ease-out;
+}
+.celebrate-in {
+  animation: pop-in 0.5s var(--c-ease-soft);
+}
+.record-glow {
+  animation: glow 1.6s ease-in-out 3;
+}
