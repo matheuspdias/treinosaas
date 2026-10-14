@@ -73,6 +73,10 @@ export const EXERCISE_NAMES_PT_BR: Record<string, ExerciseTranslation> = {
     aliases: ['puxada nuca'],
   },
   One_Arm_Lat_Pulldown: { name: 'Puxada unilateral' },
+  'Scapular_Pull-Up': {
+    name: 'Escápula na barra',
+    aliases: ['scapular pull', 'retração escapular na barra'],
+  },
   Pullups: { name: 'Barra fixa', aliases: ['pull up', 'barra pronada'] },
   'Chin-Up': { name: 'Barra fixa supinada', aliases: ['chin up'] },
   Weighted_Pull_Ups: { name: 'Barra fixa com peso' },
@@ -238,6 +242,7 @@ export const EXERCISE_NAMES_PT_BR: Record<string, ExerciseTranslation> = {
     aliases: ['agachamento', 'agachamento livre'],
   },
   Barbell_Full_Squat: { name: 'Agachamento profundo com barra' },
+  Freehand_Jump_Squat: { name: 'Agachamento com salto', aliases: ['jump squat'] },
   Front_Barbell_Squat: { name: 'Agachamento frontal', aliases: ['front squat'] },
   Smith_Machine_Squat: { name: 'Agachamento no Smith' },
   Goblet_Squat: { name: 'Agachamento goblet', aliases: ['agachamento taça'] },

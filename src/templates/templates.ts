@@ -1,12 +1,39 @@
-import type { PlanColor } from '@/domain/types'
+import type { Equipment, Muscle, PlanColor } from '@/domain/types'
 
 /**
  * Modelos de treino prontos. São código estático: só viram fichas do usuário
  * quando ele escolhe um modelo (onboarding ou tela de fichas). Cargas começam em 0.
  */
 
-/** [id do catálogo, séries, reps mín., reps máx., descanso em s] */
-export type TemplateExercise = readonly [string, number, number, number, number]
+export interface TemplateExerciseOptions {
+  notes?: string
+  /** Substitui o incremento padrão. 0 em peso corporal: progride por variação, não por carga. */
+  incrementKg?: number
+}
+
+/**
+ * [id, séries, reps mín., reps máx., descanso em s, opções?]
+ * O id é do catálogo ou a `key` de um exercício em `customExercises` do modelo.
+ */
+export type TemplateExercise = readonly [
+  string,
+  number,
+  number,
+  number,
+  number,
+  TemplateExerciseOptions?,
+]
+
+/** Exercício fora do catálogo: vira um exercício personalizado do usuário ao aplicar o modelo. */
+export interface TemplateCustomExercise {
+  /** Id local ao modelo (kebab-case, não colide com ids do catálogo). */
+  key: string
+  name: string
+  primaryMuscles: readonly Muscle[]
+  secondaryMuscles: readonly Muscle[]
+  equipment: Equipment | null
+  instructions: string
+}
 
 export interface TemplatePlan {
   name: string
@@ -16,13 +43,53 @@ export interface TemplatePlan {
 }
 
 export interface WorkoutTemplate {
-  id: 'abc' | 'abcd' | 'fullbody' | 'upperlower'
+  id: 'abc' | 'abcd' | 'fullbody' | 'upperlower' | 'calistenia'
   name: string
   description: string
   frequency: string
   level: string
+  /** Regras gerais do modelo, mostradas na prévia. */
+  guidelines?: readonly string[]
+  customExercises?: readonly TemplateCustomExercise[]
   plans: readonly TemplatePlan[]
 }
+
+/** Peso corporal: sem sugestão de aumento de carga. */
+const BW = { incrementKg: 0 } as const
+
+const CALISTHENICS_PULL: TemplatePlan['exercises'] = [
+  ['Scapular_Pull-Up', 3, 10, 10, 90, BW],
+  [
+    'Pullups',
+    3,
+    3,
+    5,
+    120,
+    { ...BW, notes: 'Negativa: subir com ajuda (salto ou banco) e descer em 5 segundos ou mais.' },
+  ],
+  [
+    'Band_Assisted_Pull-Up',
+    3,
+    6,
+    8,
+    120,
+    {
+      ...BW,
+      notes: 'Gravitron ou elástico. Ao bater 8 reps em todas as séries, reduzir a assistência.',
+    },
+  ],
+  ['Inverted_Row', 3, 10, 12, 90, { ...BW, notes: 'Remada australiana ou na fita de suspensão.' }],
+  ['Wide-Grip_Lat_Pulldown', 3, 10, 10, 90],
+  ['Barbell_Curl', 3, 10, 12, 90],
+  [
+    'dead-hang',
+    1,
+    30,
+    60,
+    60,
+    { ...BW, notes: 'Em segundos, não repetições. Tempo máximo; meta de 30 a 60 segundos.' },
+  ],
+]
 
 export const TEMPLATES: readonly WorkoutTemplate[] = [
   {
@@ -226,6 +293,159 @@ export const TEMPLATES: readonly WorkoutTemplate[] = [
           ['Seated_Leg_Curl', 3, 10, 15, 60],
           ['Seated_Calf_Raise', 4, 12, 20, 60],
           ['Hanging_Leg_Raise', 3, 10, 15, 60],
+        ],
+      },
+    ],
+  },
+  {
+    id: 'calistenia',
+    name: 'Calistenia Híbrido',
+    description: 'Calistenia em casa e força na academia: puxar, empurrar e pernas.',
+    frequency: '5 dias por semana',
+    level: 'Iniciante',
+    guidelines: [
+      'Exercícios de força: descanso de 90 a 120 segundos.',
+      'Flexão: escolha a variação que dá para fazer com boa técnica dentro da faixa de repetições. Ao passar do limite superior, avance para a próxima (normal → declinada → arqueira).',
+      'Quando conseguir 5 barras fixas seguidas, o treino de Puxar pode passar a ser feito em casa, com barra e fita de suspensão.',
+      'Prancha e dead hang: as repetições são segundos.',
+      'Semana: Puxar (seg), Empurrar (ter), Pernas (qua), descanso (qui), Puxar (sex), Empurrar + Abdômen (sáb), descanso (dom; opcional: caminhada ou cardio leve).',
+    ],
+    customExercises: [
+      {
+        key: 'dead-hang',
+        name: 'Dead hang (pendurar na barra)',
+        primaryMuscles: ['forearms'],
+        secondaryMuscles: ['lats', 'shoulders'],
+        equipment: 'other',
+        instructions:
+          'Segure a barra fixa com pegada pronada, na largura dos ombros, e fique pendurado com os braços estendidos pelo maior tempo possível, sem balançar.',
+      },
+      {
+        key: 'pike-push-up',
+        name: 'Pike push-up',
+        primaryMuscles: ['shoulders'],
+        secondaryMuscles: ['triceps'],
+        equipment: 'body only',
+        instructions:
+          'Em V invertido (quadril alto, pernas estendidas), flexione os cotovelos levando a cabeça em direção ao chão, entre as mãos, e empurre de volta.',
+      },
+      {
+        key: 'burpee',
+        name: 'Burpee',
+        primaryMuscles: ['quadriceps'],
+        secondaryMuscles: ['chest', 'shoulders', 'glutes'],
+        equipment: 'body only',
+        instructions:
+          'Agache, apoie as mãos no chão, leve os pés para trás até a prancha, volte os pés e salte com os braços para cima.',
+      },
+      {
+        key: 'jumping-jack',
+        name: 'Polichinelo',
+        primaryMuscles: ['calves'],
+        secondaryMuscles: ['shoulders'],
+        equipment: 'body only',
+        instructions:
+          'Salte abrindo as pernas e levando os braços acima da cabeça; salte de volta à posição inicial.',
+      },
+    ],
+    plans: [
+      {
+        name: 'Puxar · Academia',
+        color: 'cyan',
+        focus: 'Segunda: costas, bíceps e pegada',
+        exercises: CALISTHENICS_PULL,
+      },
+      {
+        name: 'Empurrar · Casa',
+        color: 'orange',
+        focus: 'Terça: peito, ombros, tríceps e core',
+        exercises: [
+          [
+            'Pushups',
+            4,
+            8,
+            15,
+            90,
+            {
+              ...BW,
+              notes:
+                'Normal ou declinada, a que der para fazer com boa técnica na faixa. Passou de 15, avance: normal → declinada → arqueira.',
+            },
+          ],
+          ['Bench_Dips', 3, 8, 12, 90, { ...BW, notes: 'Na cadeira ou nas paralelas.' }],
+          ['pike-push-up', 3, 6, 10, 90, { ...BW, notes: 'Preparação para o handstand.' }],
+          ['Push-Ups_-_Close_Triceps_Position', 3, 8, 12, 90, BW],
+          ['Plank', 3, 30, 60, 60, { ...BW, notes: 'Em segundos, não repetições.' }],
+        ],
+      },
+      {
+        name: 'Pernas · Academia',
+        color: 'violet',
+        focus: 'Quarta: pernas',
+        exercises: [
+          ['Barbell_Squat', 4, 6, 10, 120],
+          [
+            'Stiff-Legged_Barbell_Deadlift',
+            3,
+            8,
+            10,
+            120,
+            { notes: 'Stiff ou levantamento terra.' },
+          ],
+          ['Split_Squat_with_Dumbbells', 3, 10, 10, 90, { notes: '10 repetições por perna.' }],
+          ['Freehand_Jump_Squat', 3, 8, 8, 90, BW],
+          ['Standing_Calf_Raises', 4, 12, 15, 60],
+        ],
+      },
+      {
+        name: 'Puxar · Academia',
+        color: 'cyan',
+        focus: 'Sexta: mesmos exercícios da segunda',
+        exercises: CALISTHENICS_PULL,
+      },
+      {
+        name: 'Empurrar + Abdômen · Casa',
+        color: 'pink',
+        focus: 'Sábado: empurrar, abdômen e circuito opcional',
+        exercises: [
+          [
+            'Push-Ups_With_Feet_Elevated',
+            4,
+            8,
+            15,
+            90,
+            {
+              ...BW,
+              notes:
+                'Declinada ou arqueira, conforme o nível. Passou de 15 com boa técnica, avance para a arqueira.',
+            },
+          ],
+          ['Bench_Dips', 3, 8, 12, 90, { ...BW, notes: 'Na cadeira ou nas paralelas.' }],
+          ['pike-push-up', 3, 6, 10, 90, BW],
+          ['Push-Ups_-_Close_Triceps_Position', 3, 8, 12, 90, BW],
+          ['Flat_Bench_Lying_Leg_Raise', 3, 12, 15, 60, BW],
+          ['Reverse_Crunch', 3, 15, 15, 60, BW],
+          ['Crunches', 3, 15, 15, 60, BW],
+          [
+            'burpee',
+            3,
+            10,
+            10,
+            40,
+            {
+              ...BW,
+              notes:
+                'Circuito final opcional: 10 burpees + 30 polichinelos = 1 volta. 3 voltas, 40 s de descanso.',
+            },
+          ],
+          [
+            'jumping-jack',
+            3,
+            30,
+            30,
+            40,
+            { ...BW, notes: 'Circuito final opcional, alternando com o burpee.' },
+          ],
         ],
       },
     ],

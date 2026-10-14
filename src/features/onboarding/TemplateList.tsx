@@ -9,6 +9,11 @@ import { Button } from '@/ui/components/Button'
 import { Card } from '@/ui/components/Card'
 import { Sheet } from '@/ui/components/Sheet'
 
+function exerciseName(template: WorkoutTemplate, id: string): string {
+  const custom = template.customExercises?.find((c) => c.key === id)
+  return custom?.name ?? EXERCISE_NAMES_PT_BR[id]?.name ?? id
+}
+
 /** Lista de modelos; tocar abre a prévia com as fichas e os exercícios. */
 export function TemplateList({
   onApply,
@@ -69,8 +74,15 @@ export function TemplateList({
       >
         {preview && (
           <div className="space-y-5 pt-1">
+            {preview.guidelines && (
+              <ul className="list-disc space-y-1 pl-5 text-sm text-fg-muted">
+                {preview.guidelines.map((g) => (
+                  <li key={g}>{g}</li>
+                ))}
+              </ul>
+            )}
             {preview.plans.map((p, i) => (
-              <section key={p.name}>
+              <section key={i}>
                 <h3 className="mb-2 flex items-center gap-3">
                   <PlanBadge
                     letter={sequenceLetter(i)}
@@ -85,7 +97,7 @@ export function TemplateList({
                 <ul className="space-y-1 pl-12 text-sm">
                   {p.exercises.map(([id, sets, min, max]) => (
                     <li key={id} className="flex justify-between gap-3">
-                      <span className="truncate">{EXERCISE_NAMES_PT_BR[id]?.name ?? id}</span>
+                      <span className="truncate">{exerciseName(preview, id)}</span>
                       <span className="shrink-0 text-fg-muted tabular">
                         {sets} × {min}–{max}
                       </span>

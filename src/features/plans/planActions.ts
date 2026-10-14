@@ -134,10 +134,16 @@ export async function reorderPlanExercises(planId: ID, from: number, to: number)
 
 /** Cria as fichas de um modelo no fim da sequência e marca o onboarding como feito. */
 export async function applyTemplate(template: WorkoutTemplate): Promise<Plan[]> {
-  const [plans, settings] = await Promise.all([repos.plans.list(), repos.settings.get()])
+  const [plans, settings, existingCustom] = await Promise.all([
+    repos.plans.list(),
+    repos.settings.get(),
+    repos.customExercises.list(),
+  ])
   const startOrder = plans.reduce((max, p) => Math.max(max, p.order + 1), 0)
-  const created = instantiateTemplate(template, { startOrder, defaults: settings })
-  await repos.plans.saveMany(created)
+  const created = instantiateTemplate(template, { startOrder, defaults: settings, existingCustom })
+  // Exercícios personalizados antes das fichas: nenhuma ficha aponta para exercício inexistente.
+  for (const c of created.customExercises) await repos.customExercises.save(c)
+  await repos.plans.saveMany(created.plans)
   await repos.settings.update({ onboardingDone: true })
-  return created
+  return created.plans
 }
