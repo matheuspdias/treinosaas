@@ -14,6 +14,7 @@ describe('modelos de treino', () => {
       'fullbody',
       'upperlower',
       'calistenia',
+      'barra',
     ])
   })
 
@@ -141,5 +142,58 @@ describe('modelo Calistenia Híbrido', () => {
     const assisted = plans[0]!.exercises.find((e) => e.exercise.id === 'Band_Assisted_Pull-Up')!
     expect(assisted.incrementKg).toBe(0)
     expect(assisted.notes).toContain('Ao bater 8 reps em todas as séries, reduzir a assistência.')
+  })
+})
+
+describe('modelo Foco na Barra Fixa', () => {
+  const template = getTemplate('barra')!
+  let n = 0
+  const instantiate = (existingCustom?: CustomExercise[]) =>
+    instantiateTemplate(
+      template,
+      { startOrder: 0, defaults: { defaultIncrementKg: 2.5 }, existingCustom },
+      () => `id${++n}`,
+      'now',
+    )
+
+  it('cria as 5 fichas na ordem dos dias', () => {
+    expect(instantiate().plans.map((p) => p.name)).toEqual([
+      'Puxar (foco barra)',
+      'Empurrar',
+      'Pernas + core',
+      'Puxar 2',
+      'Empurrar 2 + core',
+    ])
+  })
+
+  it('reaproveita dead hang e pike push-up criados pelo modelo Calistenia Híbrido', () => {
+    const fromCalistenia = instantiateTemplate(
+      getTemplate('calistenia')!,
+      { startOrder: 0, defaults: { defaultIncrementKg: 2.5 } },
+      () => `c${++n}`,
+      'now',
+    ).customExercises
+    const { customExercises } = instantiate(fromCalistenia)
+    expect(customExercises.map((c) => c.name)).toEqual([
+      'Isometria no topo da barra',
+      'Hollow body (banana)',
+    ])
+  })
+
+  it('incremento padrão só nos exercícios com carga; peso corporal e assistidos ficam com 0', () => {
+    const bodyweight = new Set([
+      'Scapular_Pull-Up',
+      'Pullups',
+      'Band_Assisted_Pull-Up',
+      'Dips_-_Triceps_Version',
+      'Pushups',
+      'Hanging_Leg_Raise',
+      'Inverted_Row',
+      'Plank',
+    ])
+    for (const e of instantiate().plans.flatMap((p) => p.exercises)) {
+      const zero = e.exercise.source === 'custom' || bodyweight.has(e.exercise.id)
+      expect(e.incrementKg, e.exercise.id).toBe(zero ? 0 : 2.5)
+    }
   })
 })

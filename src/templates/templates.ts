@@ -43,7 +43,7 @@ export interface TemplatePlan {
 }
 
 export interface WorkoutTemplate {
-  id: 'abc' | 'abcd' | 'fullbody' | 'upperlower' | 'calistenia'
+  id: 'abc' | 'abcd' | 'fullbody' | 'upperlower' | 'calistenia' | 'barra'
   name: string
   description: string
   frequency: string
@@ -56,6 +56,27 @@ export interface WorkoutTemplate {
 
 /** Peso corporal: sem sugestão de aumento de carga. */
 const BW = { incrementKg: 0 } as const
+
+// Exercícios fora do catálogo usados por mais de um modelo (mesmo nome: o app reaproveita).
+const DEAD_HANG: TemplateCustomExercise = {
+  key: 'dead-hang',
+  name: 'Dead hang (pendurar na barra)',
+  primaryMuscles: ['forearms'],
+  secondaryMuscles: ['lats', 'shoulders'],
+  equipment: 'other',
+  instructions:
+    'Segure a barra fixa com pegada pronada, na largura dos ombros, e fique pendurado com os braços estendidos pelo maior tempo possível, sem balançar.',
+}
+
+const PIKE_PUSH_UP: TemplateCustomExercise = {
+  key: 'pike-push-up',
+  name: 'Pike push-up',
+  primaryMuscles: ['shoulders'],
+  secondaryMuscles: ['triceps'],
+  equipment: 'body only',
+  instructions:
+    'Em V invertido (quadril alto, pernas estendidas), flexione os cotovelos levando a cabeça em direção ao chão, entre as mãos, e empurre de volta.',
+}
 
 const CALISTHENICS_PULL: TemplatePlan['exercises'] = [
   ['Scapular_Pull-Up', 3, 10, 10, 90, BW],
@@ -311,24 +332,8 @@ export const TEMPLATES: readonly WorkoutTemplate[] = [
       'Semana: Puxar (seg), Empurrar (ter), Pernas (qua), descanso (qui), Puxar (sex), Empurrar + Abdômen (sáb), descanso (dom; opcional: caminhada ou cardio leve).',
     ],
     customExercises: [
-      {
-        key: 'dead-hang',
-        name: 'Dead hang (pendurar na barra)',
-        primaryMuscles: ['forearms'],
-        secondaryMuscles: ['lats', 'shoulders'],
-        equipment: 'other',
-        instructions:
-          'Segure a barra fixa com pegada pronada, na largura dos ombros, e fique pendurado com os braços estendidos pelo maior tempo possível, sem balançar.',
-      },
-      {
-        key: 'pike-push-up',
-        name: 'Pike push-up',
-        primaryMuscles: ['shoulders'],
-        secondaryMuscles: ['triceps'],
-        equipment: 'body only',
-        instructions:
-          'Em V invertido (quadril alto, pernas estendidas), flexione os cotovelos levando a cabeça em direção ao chão, entre as mãos, e empurre de volta.',
-      },
+      DEAD_HANG,
+      PIKE_PUSH_UP,
       {
         key: 'burpee',
         name: 'Burpee',
@@ -446,6 +451,199 @@ export const TEMPLATES: readonly WorkoutTemplate[] = [
             40,
             { ...BW, notes: 'Circuito final opcional, alternando com o burpee.' },
           ],
+        ],
+      },
+    ],
+  },
+  {
+    id: 'barra',
+    name: 'Foco na Barra Fixa',
+    description:
+      'Academia com ênfase em conquistar a barra fixa: dois dias de puxar, dois de empurrar e um de pernas.',
+    frequency: '5 dias por semana',
+    level: 'Iniciante a intermediário',
+    guidelines: [
+      'Dead hang, isometria, hollow body e prancha: as repetições são segundos.',
+      'Flexão "máx.": faça o máximo de repetições com boa técnica e registre o que conseguiu.',
+      'Barra e paralela assistidas: ao bater o topo da faixa em todas as séries, reduza a assistência.',
+    ],
+    customExercises: [
+      DEAD_HANG,
+      PIKE_PUSH_UP,
+      {
+        key: 'top-hold',
+        name: 'Isometria no topo da barra',
+        primaryMuscles: ['lats'],
+        secondaryMuscles: ['biceps', 'forearms'],
+        equipment: 'other',
+        instructions:
+          'Suba na barra fixa (com salto ou caixote) até o queixo passar da barra e segure nessa posição, com o peito perto da barra.',
+      },
+      {
+        key: 'hollow-body',
+        name: 'Hollow body (banana)',
+        primaryMuscles: ['abdominals'],
+        secondaryMuscles: [],
+        equipment: 'body only',
+        instructions:
+          'Deitado de costas, lombar colada no chão, tire ombros e pernas do chão com os braços estendidos acima da cabeça e segure o corpo em forma de banana.',
+      },
+    ],
+    plans: [
+      {
+        name: 'Puxar (foco barra)',
+        color: 'cyan',
+        focus: 'Dia 1: costas, bíceps e pegada',
+        exercises: [
+          [
+            'dead-hang',
+            3,
+            45,
+            45,
+            90,
+            { ...BW, notes: 'Em segundos, não repetições. Tempo máximo; meta de 45 segundos.' },
+          ],
+          [
+            'Scapular_Pull-Up',
+            3,
+            8,
+            8,
+            90,
+            { ...BW, notes: 'Sem dobrar os braços: só desce e sobe os ombros.' },
+          ],
+          [
+            'Pullups',
+            4,
+            3,
+            5,
+            120,
+            { ...BW, notes: 'Negativa: sobe com caixote e desce em 4 a 5 segundos.' },
+          ],
+          [
+            'Band_Assisted_Pull-Up',
+            3,
+            6,
+            8,
+            120,
+            {
+              ...BW,
+              notes:
+                'Máquina ou elástico. Ao bater 8 reps em todas as séries, reduzir a assistência.',
+            },
+          ],
+          ['Seated_Cable_Rows', 3, 10, 10, 90],
+          ['Barbell_Curl', 3, 10, 10, 60],
+        ],
+      },
+      {
+        name: 'Empurrar',
+        color: 'orange',
+        focus: 'Dia 2: peito, ombros e tríceps',
+        exercises: [
+          ['Barbell_Bench_Press_-_Medium_Grip', 4, 6, 8, 120],
+          ['Leverage_Incline_Chest_Press', 3, 10, 10, 90],
+          [
+            'Dips_-_Triceps_Version',
+            3,
+            8,
+            8,
+            90,
+            {
+              ...BW,
+              notes:
+                'Assistida (máquina ou elástico). Ao bater 8 reps em todas as séries, reduzir a assistência.',
+            },
+          ],
+          ['Side_Lateral_Raise', 3, 12, 15, 60],
+          ['Triceps_Pushdown_-_Rope_Attachment', 3, 12, 12, 60],
+          [
+            'Pushups',
+            2,
+            10,
+            20,
+            60,
+            { ...BW, notes: 'Máximo de repetições com boa técnica; registre o que conseguir.' },
+          ],
+        ],
+      },
+      {
+        name: 'Pernas + core',
+        color: 'violet',
+        focus: 'Dia 3: pernas e abdômen',
+        exercises: [
+          ['Barbell_Squat', 4, 6, 8, 120, { notes: 'Ou hack.' }],
+          ['Stiff-Legged_Barbell_Deadlift', 3, 8, 10, 120],
+          ['Leg_Press', 3, 10, 12, 90],
+          ['Dumbbell_Lunges', 3, 10, 10, 90, { notes: '10 repetições cada perna.' }],
+          ['Standing_Calf_Raises', 3, 15, 15, 60],
+          [
+            'Hanging_Leg_Raise',
+            3,
+            10,
+            10,
+            60,
+            { ...BW, notes: 'Elevação de joelhos: pendurado na barra, subir os joelhos dobrados.' },
+          ],
+          ['hollow-body', 3, 20, 30, 60, { ...BW, notes: 'Em segundos, não repetições.' }],
+        ],
+      },
+      {
+        name: 'Puxar 2',
+        color: 'blue',
+        focus: 'Dia 4: costas, ombro posterior e bíceps',
+        exercises: [
+          ['top-hold', 4, 10, 20, 90, { ...BW, notes: 'Em segundos, não repetições.' }],
+          [
+            'Pullups',
+            3,
+            3,
+            3,
+            120,
+            { ...BW, notes: 'Negativa: sobe com caixote e desce em 4 a 5 segundos.' },
+          ],
+          ['Underhand_Cable_Pulldowns', 4, 8, 10, 90, { notes: 'Pulley frente, pegada supinada.' }],
+          [
+            'Inverted_Row',
+            3,
+            8,
+            12,
+            90,
+            { ...BW, notes: 'Remada australiana: barra baixa, corpo inclinado.' },
+          ],
+          ['T-Bar_Row_with_Handle', 3, 10, 10, 90, { notes: 'Cavalinho ou remada unilateral.' }],
+          ['Reverse_Machine_Flyes', 3, 15, 15, 60],
+          ['Hammer_Curls', 3, 10, 10, 60],
+        ],
+      },
+      {
+        name: 'Empurrar 2 + core',
+        color: 'red',
+        focus: 'Dia 5: ombros, peito, tríceps e abdômen',
+        exercises: [
+          ['Dumbbell_Shoulder_Press', 4, 8, 8, 90],
+          ['pike-push-up', 3, 6, 8, 90, { ...BW, notes: 'Flexão com quadril alto.' }],
+          [
+            'Dips_-_Triceps_Version',
+            3,
+            8,
+            8,
+            90,
+            {
+              ...BW,
+              notes:
+                'Assistida (máquina ou elástico). Ao bater 8 reps em todas as séries, reduzir a assistência.',
+            },
+          ],
+          ['Incline_Dumbbell_Press', 3, 10, 10, 90],
+          [
+            'Pushups',
+            2,
+            10,
+            20,
+            60,
+            { ...BW, notes: 'Máximo de repetições com boa técnica; registre o que conseguir.' },
+          ],
+          ['Plank', 3, 30, 45, 60, { ...BW, notes: 'Em segundos, não repetições.' }],
         ],
       },
     ],
