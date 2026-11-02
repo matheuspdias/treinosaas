@@ -1,12 +1,15 @@
 import { useEffect } from 'react'
 import { useSettings } from '@/data/hooks'
+import { startAcademySync } from '@/data/sync'
 import { applyTheme } from '@/ui/theme/theme'
 import { usePlanImagePrefetch } from '@/features/plans/usePlanImagePrefetch'
 
-/** Efeitos globais sem UI: tema e cache offline das imagens das fichas. */
+/** Efeitos globais sem UI: tema, cache offline das imagens e sincronização com a academia. */
 export function AppEffects() {
   const { theme } = useSettings()
   useEffect(() => applyTheme(theme), [theme])
+  // Sem VITE_API_URL não faz nada. Com ela, só sincroniza se houver aluno logado.
+  useEffect(() => startAcademySync(), [])
   usePlanImagePrefetch()
   return null
 }

@@ -1,8 +1,9 @@
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { Navigate, useNavigate, useParams } from 'react-router'
 import { EMPTY_FILTERS } from '@/catalog/search'
 import type { ExerciseFilters } from '@/catalog/search'
+import { isAcademyPlan } from '@/domain/academy'
 import type { ExerciseRef } from '@/domain/types'
 import { usePlan } from '@/data/hooks'
 import { addExercisesToPlan } from '@/features/plans/planActions'
@@ -40,6 +41,9 @@ export function ExercisePickerPage() {
     )
     navigate(back, { replace: true })
   }
+
+  // Ficha da academia não recebe exercícios do aluno.
+  if (plan && isAcademyPlan(plan)) return <Navigate to={back} replace />
 
   return (
     <div className="pb-28">

@@ -10,10 +10,11 @@ import {
 } from '@/data/hooks'
 import { formatRelativeDay, greeting } from '@/domain/dates'
 import { formatDurationLong, sessionDurationSec } from '@/domain/duration'
-import { isActivePlan, nextPlanInSequence, sortByOrder } from '@/domain/sequence'
+import { nextSuggestedPlan, orderedActivePlans } from '@/domain/academy'
 import type { Plan } from '@/domain/types'
 import { formatVolume } from '@/domain/units'
 import { sessionVolume } from '@/domain/volume'
+import { AcademyHomeCards } from '@/features/academy/AcademyHomeCards'
 import { useExerciseNames } from '@/features/exercises/hooks/useExerciseNames'
 import { PlanBadge } from '@/features/plans/components/PlanBadge'
 import { createNextPlan } from '@/features/plans/planActions'
@@ -48,12 +49,14 @@ export function HomePage() {
 
   const view = useMemo(() => {
     if (!plans || !history) return null
-    const next = nextPlanInSequence(plans, history[0]?.planId ?? null)
+    // Sem academia: mesma sequência de sempre. Com treino da academia, segue as fichas dela.
+    const next = nextSuggestedPlan(plans, history)
     const lastByPlan = new Map<string, string>()
     for (const s of history) if (!lastByPlan.has(s.planId)) lastByPlan.set(s.planId, s.startedAt)
     return {
       next,
-      others: sortByOrder(plans.filter(isActivePlan)).filter((p) => p.id !== next?.id),
+      all: orderedActivePlans(plans),
+      others: orderedActivePlans(plans).filter((p) => p.id !== next?.id),
       letters: planLetters(plans),
       lastByPlan,
     }
@@ -70,7 +73,7 @@ export function HomePage() {
     if (session) navigate('/treino')
   }
 
-  const { next, others, letters, lastByPlan } = view
+  const { next, all, others, letters, lastByPlan } = view
   const recent = history.slice(0, 3)
 
   return (
@@ -81,6 +84,8 @@ export function HomePage() {
         </p>
         <h1 className="text-3xl font-extrabold tracking-tight">{greeting()}!</h1>
       </header>
+
+      <AcademyHomeCards plans={plans ?? []} history={history} />
 
       {active && (
         <Link
@@ -200,7 +205,7 @@ export function HomePage() {
                 {active ? 'Fichas' : 'Ou escolha outra ficha'}
               </h2>
               <ul className="space-y-2">
-                {(active ? sortByOrder(plans!.filter(isActivePlan)) : others).map((p) => (
+                {(active ? all : others).map((p) => (
                   <li key={p.id}>
                     <Card className="flex items-center gap-3 py-2 pr-2 pl-3">
                       <PlanBadge letter={letters.get(p.id) ?? ''} color={p.color} />

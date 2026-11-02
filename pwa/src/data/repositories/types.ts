@@ -1,4 +1,6 @@
 import type {
+  AcademyFeed,
+  AcademySession,
   BodyMetric,
   CustomExercise,
   ID,
@@ -7,6 +9,7 @@ import type {
   Session,
   Settings,
 } from '@/domain/types'
+import type { OutboxItem } from '../sync/outbox'
 
 /*
  * Contratos de acesso a dados. As telas dependem só destas interfaces;
@@ -57,6 +60,22 @@ export interface BodyMetricRepository {
   remove(id: ID): Promise<void>
 }
 
+export interface AcademyRepository {
+  getSession(): Promise<AcademySession | undefined>
+  saveSession(session: AcademySession): Promise<void>
+  clearSession(): Promise<void>
+  getFeed(): Promise<AcademyFeed>
+  updateFeed(patch: Partial<AcademyFeed>): Promise<void>
+}
+
+export interface OutboxRepository {
+  /** Itens na ordem em que entraram na fila. */
+  list(): Promise<OutboxItem[]>
+  put(item: OutboxItem): Promise<void>
+  remove(ids: string[]): Promise<void>
+  count(): Promise<number>
+}
+
 export interface Repositories {
   plans: PlanRepository
   sessions: SessionRepository
@@ -64,4 +83,6 @@ export interface Repositories {
   media: MediaRepository
   settings: SettingsRepository
   bodyMetrics: BodyMetricRepository
+  academy: AcademyRepository
+  outbox: OutboxRepository
 }

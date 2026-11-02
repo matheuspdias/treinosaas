@@ -1,1 +1,5 @@
-resources/js/components/ui/*
+vendor
+public
+storage
+bootstrap/cache
+resources/catalog

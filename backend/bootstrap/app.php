@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Middleware\AuthenticateStudent;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\ResolveTenantFromUser;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,7 +19,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'tenant' => ResolveTenantFromUser::class,
+            'student' => AuthenticateStudent::class,
         ]);
+
+        // A academia precisa estar definida antes do route model binding ({student}, {program}...),
+        // que consulta com o filtro de academia.
+        $middleware->prependToPriorityList(SubstituteBindings::class, ResolveTenantFromUser::class);
+        $middleware->prependToPriorityList(SubstituteBindings::class, AuthenticateStudent::class);
 
         $middleware->web(append: [
             HandleInertiaRequests::class,

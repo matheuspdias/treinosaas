@@ -123,4 +123,24 @@ describe('backup', () => {
     await restoreBackup(target.db, r.backup)
     expect(await target.repos.plans.list()).toHaveLength(1)
   })
+
+  it('não exporta fichas da academia (voltam pela sincronização) nem o login', async () => {
+    const { db, repos } = setup()
+    await repos.plans.save(plan('Minha', 0))
+    await repos.plans.save(plan('Da academia', 1, { origin: 'academy' }))
+    await repos.academy.saveSession({
+      token: 'segredo',
+      expiresAt: null,
+      student: { id: 's', name: 'Ana', phoneMasked: null },
+      academy: { id: 'a', name: 'Academia' },
+      loggedInAt: 'x',
+    })
+    const backup = await createBackup(db)
+    expect(backup.data.plans.map((p) => p.name)).toEqual(['Minha'])
+    expect(JSON.stringify(backup)).not.toContain('segredo')
+
+    // Restaurar não desloga o aluno.
+    await restoreBackup(db, backup)
+    expect((await repos.academy.getSession())?.token).toBe('segredo')
+  })
 })

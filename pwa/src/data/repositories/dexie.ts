@@ -1,9 +1,11 @@
-import { DEFAULT_SETTINGS } from '@/domain/types'
-import type { Settings } from '@/domain/types'
+import { DEFAULT_SETTINGS, EMPTY_ACADEMY_FEED } from '@/domain/types'
+import type { AcademyFeed, AcademySession, Settings } from '@/domain/types'
 import type { TreinoDB } from '../db/db'
 import type { Repositories } from './types'
 
 const SETTINGS_KEY = 'app'
+const ACADEMY_SESSION_KEY = 'session'
+const ACADEMY_FEED_KEY = 'feed'
 const nowIso = () => new Date().toISOString()
 
 export function createDexieRepositories(db: TreinoDB): Repositories {
@@ -88,6 +90,43 @@ export function createDexieRepositories(db: TreinoDB): Repositories {
         const now = nowIso()
         await db.bodyMetrics.update(id, { deletedAt: now, updatedAt: now })
       },
+    },
+
+    academy: {
+      async getSession() {
+        return (await db.academy.get(ACADEMY_SESSION_KEY))?.value as AcademySession | undefined
+      },
+      async saveSession(session) {
+        await db.academy.put({ key: ACADEMY_SESSION_KEY, value: session })
+      },
+      async clearSession() {
+        await db.academy.delete(ACADEMY_SESSION_KEY)
+      },
+      async getFeed() {
+        const row = await db.academy.get(ACADEMY_FEED_KEY)
+        return {
+          ...EMPTY_ACADEMY_FEED,
+          ...((row?.value as Partial<AcademyFeed> | undefined) ?? {}),
+        }
+      },
+      async updateFeed(patch) {
+        await db.transaction('rw', db.academy, async () => {
+          const row = await db.academy.get(ACADEMY_FEED_KEY)
+          const current = (row?.value as Partial<AcademyFeed> | undefined) ?? {}
+          await db.academy.put({ key: ACADEMY_FEED_KEY, value: { ...current, ...patch } })
+        })
+      },
+    },
+
+    outbox: {
+      list: () => db.syncOutbox.orderBy('createdAt').toArray(),
+      async put(item) {
+        await db.syncOutbox.put(item)
+      },
+      async remove(ids) {
+        await db.syncOutbox.bulkDelete(ids)
+      },
+      count: () => db.syncOutbox.count(),
     },
 
     settings: {

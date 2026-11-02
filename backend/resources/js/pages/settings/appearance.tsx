@@ -1,30 +1,55 @@
-import { Head } from '@inertiajs/react';
-
-import AppearanceTabs from '@/components/appearance-tabs';
-import HeadingSmall from '@/components/heading-small';
-import { type BreadcrumbItem } from '@/types';
-
-import AppLayout from '@/layouts/app-layout';
-import SettingsLayout from '@/layouts/settings/layout';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Appearance settings',
-        href: '/settings/appearance',
-    },
-];
+import { Monitor, Moon, Sun } from 'lucide-react'
+import { useState } from 'react'
+import { PanelLayout } from '@/layouts/PanelLayout'
+import { Card } from '@/ui/components/Card'
+import { PageHeader } from '@/ui/components/PageHeader'
+import { SegmentedControl } from '@/ui/components/SegmentedControl'
+import { getThemePreference, setThemePreference, type ThemePreference } from '@/ui/theme/theme'
+import { SettingsNav } from './SettingsNav'
 
 export default function Appearance() {
-    return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Appearance settings" />
+  const [theme, setTheme] = useState<ThemePreference>(getThemePreference)
 
-            <SettingsLayout>
-                <div className="space-y-6">
-                    <HeadingSmall title="Appearance settings" description="Update your account's appearance settings" />
-                    <AppearanceTabs />
-                </div>
-            </SettingsLayout>
-        </AppLayout>
-    );
+  return (
+    <PanelLayout title="Aparência" width="narrow">
+      <PageHeader title="Ajustes" />
+      <SettingsNav />
+      <Card className="mx-4 mt-2 p-5 lg:mx-6">
+        <SegmentedControl
+          label="Tema"
+          value={theme}
+          onChange={(v) => {
+            setTheme(v)
+            setThemePreference(v)
+          }}
+          options={[
+            {
+              value: 'system',
+              label: (
+                <>
+                  <Monitor className="size-4" /> Sistema
+                </>
+              ),
+            },
+            {
+              value: 'light',
+              label: (
+                <>
+                  <Sun className="size-4" /> Claro
+                </>
+              ),
+            },
+            {
+              value: 'dark',
+              label: (
+                <>
+                  <Moon className="size-4" /> Escuro
+                </>
+              ),
+            },
+          ]}
+        />
+      </Card>
+    </PanelLayout>
+  )
 }

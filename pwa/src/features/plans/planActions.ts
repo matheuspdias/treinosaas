@@ -1,4 +1,5 @@
 import { repos } from '@/data'
+import { isAcademyPlan, userPlans } from '@/domain/academy'
 import {
   createPlan,
   createPlanExercise,
@@ -14,9 +15,10 @@ import type { WorkoutTemplate } from '@/templates/templates'
 
 const now = () => new Date().toISOString()
 
+/** Fichas da academia são só leitura: nenhuma ação de edição as altera. */
 async function mutatePlan(id: ID, fn: (plan: Plan) => Plan): Promise<Plan | undefined> {
   const plan = await repos.plans.get(id)
-  if (!plan) return undefined
+  if (!plan || isAcademyPlan(plan)) return undefined
   const next = { ...fn(plan), updatedAt: now() }
   await repos.plans.save(next)
   return next
@@ -24,7 +26,8 @@ async function mutatePlan(id: ID, fn: (plan: Plan) => Plan): Promise<Plan | unde
 
 export async function createNextPlan(color?: PlanColor): Promise<Plan> {
   const plans = await repos.plans.list()
-  const activeCount = plans.filter(isActivePlan).length
+  // A letra (Treino A, B...) conta só as fichas do próprio usuário.
+  const activeCount = userPlans(plans).filter(isActivePlan).length
   const order = plans.reduce((max, p) => Math.max(max, p.order + 1), 0)
   const plan = createPlan({
     name: `Treino ${sequenceLetter(activeCount)}`,
@@ -62,12 +65,14 @@ export async function archivePlan(id: ID, archived: boolean): Promise<void> {
 }
 
 export async function deletePlan(id: ID): Promise<void> {
+  const plan = await repos.plans.get(id)
+  if (!plan || isAcademyPlan(plan)) return
   await repos.plans.remove(id)
 }
 
 /** Reordena as fichas ativas (as arquivadas mantêm sua posição relativa no fim). */
 export async function reorderActivePlans(orderedActiveIds: ID[]): Promise<void> {
-  const plans = sortByOrder(await repos.plans.list())
+  const plans = sortByOrder(userPlans(await repos.plans.list()))
   const byId = new Map(plans.map((p) => [p.id, p]))
   const active = orderedActiveIds.map((id) => byId.get(id)).filter((p): p is Plan => !!p)
   const rest = plans.filter((p) => !orderedActiveIds.includes(p.id))

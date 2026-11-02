@@ -60,3 +60,6 @@ pwa-test:
 
 pwa-check:
 	docker compose run --rm node sh -c "cd pwa && npm run lint && npm run typecheck && npm run test"
+
+panel-check:
+	docker compose run --rm node sh -c "cd backend && npm run lint && npm run typecheck"

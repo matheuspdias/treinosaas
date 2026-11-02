@@ -1,5 +1,7 @@
 import { loadCatalog } from '@/catalog/catalog'
 import { repos } from '@/data'
+import { enqueueWorkout } from '@/data/sync'
+import { isAcademyPlan } from '@/domain/academy'
 import { EXERCISE_NAMES_PT_BR } from '@/catalog/i18n/pt-BR'
 import { createSessionFromPlan, finishSession, syncPlanLoads } from '@/domain/session'
 import type { ExerciseRef, Plan, Session } from '@/domain/types'
@@ -42,12 +44,17 @@ export async function startWorkout(plan: Plan): Promise<Session | null> {
   return session
 }
 
-/** Finaliza, salva e atualiza a "carga atual" da ficha. */
+/**
+ * Finaliza, salva e atualiza a "carga atual" da ficha. Ficha da academia não muda (é a
+ * prescrição do instrutor): o treino vai para a fila de envio e as cargas ficam no histórico.
+ */
 export async function completeWorkout(session: Session): Promise<Session> {
   const finished = finishSession(session)
   await repos.sessions.save(finished)
   const plan = await repos.plans.get(session.planId)
-  if (plan) {
+  if (plan && isAcademyPlan(plan)) {
+    await enqueueWorkout(finished)
+  } else if (plan) {
     const synced = syncPlanLoads(plan, finished, finished.finishedAt!)
     if (synced !== plan) await repos.plans.save(synced)
   }

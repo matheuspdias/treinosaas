@@ -33,7 +33,9 @@ export async function createBackup(db: TreinoDB, now = new Date()): Promise<Back
     formatVersion: BACKUP_FORMAT_VERSION,
     exportedAt: now.toISOString(),
     data: {
-      plans,
+      // Fichas da academia não entram: são do servidor e voltam sozinhas na próxima sincronização
+      // (restaurar não pode transformá-las em fichas editáveis do usuário).
+      plans: plans.filter((p) => p.origin !== 'academy'),
       sessions,
       customExercises,
       mediaBlobs: await Promise.all(

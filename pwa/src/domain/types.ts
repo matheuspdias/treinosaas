@@ -131,6 +131,23 @@ export interface Plan extends Entity {
   order: number
   archivedAt?: ISODate
   exercises: PlanExercise[]
+  /** Ausente = ficha do próprio usuário. 'academy' = recebida da academia (só leitura). */
+  origin?: 'academy'
+  academy?: AcademyPlanInfo
+}
+
+/** Dados do treino da academia ao qual a ficha pertence (vêm do servidor). */
+export interface AcademyPlanInfo {
+  programId: ID
+  programName: string
+  /** Instrutor que montou o treino. */
+  author: string | null
+  /** Dia local, AAAA-MM-DD. */
+  expiresOn: string | null
+  expired: boolean
+  /** Criado ou alterado pelo instrutor e ainda não visto pelo aluno. */
+  isNew: boolean
+  programNotes: string | null
 }
 
 // ---------------------------------------------------------------------------
@@ -199,6 +216,55 @@ export interface BodyMetric extends Entity {
   weightKg?: number
   bodyFatPct?: number
   measurementsCm: Partial<Record<BodyMeasure, number>>
+}
+
+// ---------------------------------------------------------------------------
+// Academia (modo aluno de academia; tudo opcional, só existe depois do login)
+// ---------------------------------------------------------------------------
+
+/** Login do aluno na academia, guardado no aparelho (sessão persistente). */
+export interface AcademySession {
+  token: string
+  expiresAt: ISODate | null
+  student: { id: ID; name: string; phoneMasked: string | null }
+  academy: { id: ID; name: string }
+  loggedInAt: ISODate
+}
+
+export interface AcademyNotice {
+  id: ID
+  title: string
+  body: string
+  pinned: boolean
+  publishedAt: ISODate
+  expiresAt: ISODate | null
+}
+
+/** Avaliação física registrada pela academia (só leitura no app). */
+export interface AcademyAssessment {
+  id: ID
+  /** Dia, AAAA-MM-DD. */
+  assessedOn: string
+  weightKg: number | null
+  heightCm: number | null
+  bodyFatPct: number | null
+  measurementsCm: Partial<Record<BodyMeasure, number>>
+  notes: string | null
+}
+
+/** Conteúdo da academia guardado para uso offline, e o estado da sincronização. */
+export interface AcademyFeed {
+  notices: AcademyNotice[]
+  assessments: AcademyAssessment[]
+  lastSyncAt: ISODate | null
+  lastError: string | null
+}
+
+export const EMPTY_ACADEMY_FEED: AcademyFeed = {
+  notices: [],
+  assessments: [],
+  lastSyncAt: null,
+  lastError: null,
 }
 
 // ---------------------------------------------------------------------------

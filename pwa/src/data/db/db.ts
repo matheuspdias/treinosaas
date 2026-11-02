@@ -1,8 +1,15 @@
 import Dexie, { type Table } from 'dexie'
 import type { BodyMetric, CustomExercise, MediaBlob, Plan, Session } from '@/domain/types'
+import type { OutboxItem } from '../sync/outbox'
 import { applyMigrations } from './migrations'
 
 export interface SettingRow {
+  key: string
+  value: unknown
+}
+
+/** Linha chave-valor da tabela `academy` (sessão e conteúdo da academia). */
+export interface AcademyRow {
   key: string
   value: unknown
 }
@@ -14,6 +21,9 @@ export class TreinoDB extends Dexie {
   sessions!: Table<Session, string>
   settings!: Table<SettingRow, string>
   bodyMetrics!: Table<BodyMetric, string>
+  /** Fora do backup de propósito: o restore não desloga o aluno. */
+  academy!: Table<AcademyRow, string>
+  syncOutbox!: Table<OutboxItem, string>
 
   constructor(name = 'treinoapp') {
     super(name)

@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { usePlans } from '@/data/hooks'
+import { userPlans } from '@/domain/academy'
 import { isActivePlan, sortByOrder } from '@/domain/sequence'
 import type { ExerciseRef } from '@/domain/types'
 import { PlanBadge } from '@/features/plans/components/PlanBadge'
@@ -23,8 +24,10 @@ export function AddToPlanSheet({
   onAdded: (planId: string) => void
 }) {
   const plans = usePlans() ?? []
-  const active = sortByOrder(plans.filter(isActivePlan))
-  const letters = planLetters(plans)
+  // Só as fichas do aluno: as da academia não recebem exercícios.
+  const own = userPlans(plans)
+  const active = sortByOrder(own.filter(isActivePlan))
+  const letters = planLetters(own)
 
   const add = async (planId: string, planName: string) => {
     await addExercisesToPlan(planId, [exRef])

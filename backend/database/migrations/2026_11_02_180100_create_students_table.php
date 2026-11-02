@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignUuid('academy_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             // E.164 (+5511912345678), normalizado por App\Support\PhoneNumber.
-            $table->string('phone', 20);
+            $table->string('phone', 20)->nullable(); // null depois de anonimizado (LGPD)
             $table->string('status', 10)->default('active');
             $table->string('pin_hash')->nullable();
             $table->timestamp('pin_set_at')->nullable();

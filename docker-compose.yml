@@ -28,6 +28,8 @@ services:
       - "8010:80"
     volumes:
       - ./backend:/var/www/html
+      # Imagens do catálogo de exercícios: as mesmas da PWA, sem cópia.
+      - ./pwa/public/exercises:/var/www/html/public/exercises:ro
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
@@ -68,7 +70,7 @@ services:
 
   # Vite do painel (backend) e da PWA. Uso: make panel-dev / make pwa-dev, ou `docker compose run --rm node ...`
   node:
-    image: node:22-alpine
+    image: node:22-bookworm-slim
     working_dir: /workspace
     user: "1000:1000"
     volumes:

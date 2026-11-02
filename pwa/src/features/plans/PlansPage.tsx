@@ -9,9 +9,11 @@ import {
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { usePlans } from '@/data/hooks'
+import { isAcademyPlan, userPlans } from '@/domain/academy'
 import { moveItem } from '@/domain/plan'
 import { isActivePlan, sortByOrder } from '@/domain/sequence'
 import type { Plan } from '@/domain/types'
+import { AcademyProgramsSection } from '@/features/academy/AcademyProgramsSection'
 import { cn } from '@/ui/cn'
 import { Button } from '@/ui/components/Button'
 import { buttonClass } from '@/ui/components/buttonClass'
@@ -39,8 +41,9 @@ export function PlansPage() {
   // Ordem otimista durante o arraste (evita "pulo" até o IndexedDB responder).
   const [optimistic, setOptimistic] = useState<string[] | null>(null)
 
-  const { active, archived, letters } = useMemo(() => {
-    const all = plans ?? []
+  const { active, archived, letters, hasAcademy } = useMemo(() => {
+    // Lista arrastável e arquivadas: só as fichas do usuário. As da academia têm seção própria.
+    const all = userPlans(plans ?? [])
     const activeList = sortByOrder(all.filter(isActivePlan))
     const ordered = optimistic
       ? optimistic.map((id) => activeList.find((p) => p.id === id)).filter((p): p is Plan => !!p)
@@ -48,7 +51,8 @@ export function PlansPage() {
     return {
       active: ordered.length === activeList.length ? ordered : activeList,
       archived: all.filter((p) => p.archivedAt),
-      letters: planLetters(all),
+      letters: planLetters(plans ?? []),
+      hasAcademy: (plans ?? []).some((p) => isAcademyPlan(p) && isActivePlan(p)),
     }
   }, [plans, optimistic])
 
@@ -75,7 +79,29 @@ export function PlansPage() {
         }
       />
 
-      {active.length === 0 && archived.length === 0 ? (
+      {hasAcademy && (
+        <div className="px-4">
+          <AcademyProgramsSection plans={plans} letters={letters} />
+          <h2 className="mb-3 text-sm font-semibold tracking-wide text-fg-muted uppercase">
+            Minhas fichas
+          </h2>
+        </div>
+      )}
+
+      {active.length === 0 && archived.length === 0 && hasAcademy ? (
+        <div className="grid gap-2 px-4 pb-6">
+          <p className="text-fg-muted">
+            Quer treinar algo além do treino da academia? Monte suas próprias fichas.
+          </p>
+          <Button variant="secondary" block icon={<Plus className="size-5" />} onClick={create}>
+            Nova ficha
+          </Button>
+          <Link to="/fichas/modelos" className={buttonClass({ variant: 'ghost', block: true })}>
+            <LayoutTemplate className="size-5" />
+            Usar um modelo pronto
+          </Link>
+        </div>
+      ) : active.length === 0 && archived.length === 0 ? (
         <EmptyState
           icon={<ClipboardList className="size-8" />}
           title="Nenhuma ficha ainda"

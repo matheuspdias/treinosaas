@@ -17,5 +17,7 @@
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true
   },
-  "include": ["vite.config.ts", "scripts", "package.json"]
+  "include": ["vite.config.ts", "scripts", "package.json"],
+  // Importa código do app (alias @/, sem extensões): roda com tsx e é coberto pelo tsconfig.app.
+  "exclude": ["scripts/export-catalog-backend.ts"]
 }

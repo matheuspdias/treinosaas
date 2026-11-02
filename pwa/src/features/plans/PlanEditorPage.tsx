@@ -2,10 +2,12 @@ import { Dumbbell, MoreVertical, Play, Plus, Share2, StickyNote } from 'lucide-r
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { usePlan, usePlans, useSettings } from '@/data/hooks'
+import { isAcademyPlan } from '@/domain/academy'
 import { formatClock } from '@/domain/duration'
 import { moveItem } from '@/domain/plan'
 import type { PlanExercise } from '@/domain/types'
 import { formatWeight } from '@/domain/units'
+import { AcademyPlanView } from '@/features/academy/AcademyPlanView'
 import { ExerciseThumb } from '@/features/exercises/components/ExerciseThumb'
 import { useExerciseLookup } from '@/features/exercises/hooks/useExerciseLookup'
 import { SharePlanSheet } from '@/features/share/SharePlanSheet'
@@ -55,6 +57,8 @@ export function PlanEditorPage() {
       />
     )
   }
+
+  if (isAcademyPlan(plan)) return <AcademyPlanView plan={plan} letter={letter} />
 
   const exercises = optimistic ?? plan.exercises
   const editingIndex = exercises.findIndex((e) => e.id === editingId)

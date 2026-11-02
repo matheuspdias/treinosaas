@@ -12,12 +12,14 @@ describe('migrations', () => {
     await db.open()
     expect(db.verno).toBe(DB_VERSION)
     expect(db.tables.map((t) => t.name).sort()).toEqual([
+      'academy',
       'bodyMetrics',
       'customExercises',
       'mediaBlobs',
       'plans',
       'sessions',
       'settings',
+      'syncOutbox',
     ])
     expect(db.sessions.schema.indexes.map((i) => i.name).sort()).toEqual([
       'planId',
@@ -59,6 +61,45 @@ describe('migrations', () => {
     })
     expect((await db.bodyMetrics.where('date').equals('2026-01-01').first())?.weightKg).toBe(80)
     expect(await db.settings.get('app')).toMatchObject({ value: { weightUnit: 'kg' } })
+    db.close()
+  })
+
+  it('migra um banco da v2 para a v3 sem tocar nas fichas e sessões existentes', async () => {
+    const name = uniqueName()
+    const v2 = new Dexie(name)
+    v2.version(1).stores({
+      plans: 'id, order',
+      customExercises: 'id, name',
+      mediaBlobs: 'id',
+      sessions: 'id, planId, status, startedAt',
+      settings: 'key',
+    })
+    v2.version(2).stores({ bodyMetrics: 'id, date' })
+    await v2.open()
+    const ownPlan = { id: 'p1', name: 'Treino A', order: 0, color: 'lime', exercises: [] }
+    await v2.table('plans').put(ownPlan)
+    await v2.table('sessions').put({ id: 's1', planId: 'p1', status: 'completed', startedAt: 'x' })
+    v2.close()
+
+    const db = new TreinoDB(name)
+    await db.open()
+    expect(db.verno).toBe(DB_VERSION)
+    // Ficha antiga continua igual: sem `origin` = ficha do usuário.
+    expect(await db.plans.get('p1')).toEqual(ownPlan)
+    expect(await db.sessions.count()).toBe(1)
+    // Tabelas novas vazias e utilizáveis.
+    await db.academy.put({ key: 'session', value: { token: 't' } })
+    await db.syncOutbox.put({
+      id: 'w1',
+      kind: 'seen',
+      programId: 'prog',
+      studentId: 's',
+      createdAt: '2026-01-02',
+      attempts: 0,
+      nextAttemptAt: '2026-01-02',
+    })
+    expect(await db.syncOutbox.orderBy('createdAt').count()).toBe(1)
+    expect(await db.academy.get('session')).toMatchObject({ value: { token: 't' } })
     db.close()
   })
 })

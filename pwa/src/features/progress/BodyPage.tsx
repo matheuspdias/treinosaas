@@ -18,16 +18,8 @@ import { IconButton } from '@/ui/components/IconButton'
 import { PageHeader } from '@/ui/components/PageHeader'
 import { Sheet } from '@/ui/components/Sheet'
 import { PageSpinner } from '@/ui/components/Spinner'
-import { longDate, shortDate } from './format'
-
-const MEASURE_LABEL: Record<BodyMeasure, string> = {
-  waist: 'Cintura',
-  chest: 'Peitoral',
-  hips: 'Quadril',
-  arm: 'Braço',
-  thigh: 'Coxa',
-  calf: 'Panturrilha',
-}
+import { AcademyAssessments } from '@/features/academy/AcademyAssessments'
+import { longDate, MEASURE_LABEL, shortDate } from './format'
 
 type ChartKey = 'weight' | 'bodyFat' | BodyMeasure
 
@@ -184,6 +176,7 @@ export function BodyPage() {
           </section>
         </div>
       )}
+      <AcademyAssessments />
       <BodyMetricSheet
         metric={editing}
         existing={metrics}

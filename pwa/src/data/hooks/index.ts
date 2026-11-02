@@ -1,6 +1,15 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { DEFAULT_SETTINGS } from '@/domain/types'
-import type { BodyMetric, CustomExercise, ID, Plan, Session, Settings } from '@/domain/types'
+import { DEFAULT_SETTINGS, EMPTY_ACADEMY_FEED } from '@/domain/types'
+import type {
+  AcademyFeed,
+  AcademySession,
+  BodyMetric,
+  CustomExercise,
+  ID,
+  Plan,
+  Session,
+  Settings,
+} from '@/domain/types'
 import { repos } from '../index'
 
 /*
@@ -51,4 +60,18 @@ export function useSettings(): Settings {
 
 export function useBodyMetrics(): BodyMetric[] | undefined {
   return useLiveQuery(() => repos.bodyMetrics.list(), [])
+}
+
+/** Aluno logado na academia; `null` fora do modo academia, `undefined` enquanto carrega. */
+export function useAcademySession(): AcademySession | null | undefined {
+  return useLiveQuery(async () => (await repos.academy.getSession()) ?? null, [])
+}
+
+export function useAcademyFeed(): AcademyFeed {
+  return useLiveQuery(() => repos.academy.getFeed(), []) ?? EMPTY_ACADEMY_FEED
+}
+
+/** Treinos e marcações esperando internet para ir para a academia. */
+export function useOutboxCount(): number {
+  return useLiveQuery(() => repos.outbox.count(), []) ?? 0
 }

@@ -111,6 +111,18 @@ export const router = createBrowserRouter([
         }),
       },
       {
+        path: 'academia/entrar',
+        lazy: async () => ({
+          Component: (await import('@/features/academy/AcademyLoginPage')).AcademyLoginPage,
+        }),
+      },
+      {
+        path: 'academia/avisos',
+        lazy: async () => ({
+          Component: (await import('@/features/academy/NoticesPage')).NoticesPage,
+        }),
+      },
+      {
         path: 'ajustes',
         lazy: async () => ({
           Component: (await import('@/features/settings/SettingsPage')).SettingsPage,

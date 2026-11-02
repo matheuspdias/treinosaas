@@ -1,26 +1,33 @@
 # TreinoSaaS
 
-TreinoApp para academias: a PWA de treinos (offline) + painel da academia + API.
+TreinoApp para academias: o app de treinos do aluno (PWA offline) + painel da academia + API.
 
 ```
 backend/   Laravel 13 (controller → service → repository) + painel Inertia/React + API do aluno (Sanctum)
-pwa/       app do aluno (Vite/React, offline-first, IndexedDB), importado do treinoapp com histórico
-docker/    imagens e configs do ambiente (php-fpm 8.4, nginx, postgres 16, redis)
+pwa/       app do aluno (Vite/React, offline-first, IndexedDB). Sem VITE_API_URL funciona exatamente como o treinoapp
+docker/    php-fpm 8.4, nginx, postgres 16, redis
+docs/      contrato da API do aluno (api-aluno.md) e deploy (deploy.md)
 ```
 
 ## Rodando (tudo pelo Docker)
 
 ```bash
 make build && make up
-cp backend/.env.example backend/.env      # primeira vez
-make artisan c="key:generate"             # primeira vez
-make fresh                                # migra e cria dados de demonstração
-make panel-install && make panel-build    # assets do painel (ou make panel-dev para HMR)
+cp backend/.env.example backend/.env && make artisan c="key:generate"   # primeira vez
+make fresh                                  # migra e cria os dados de demonstração
+make panel-install && make panel-build      # painel (ou make panel-dev para HMR)
+make pwa-install
+echo "VITE_API_URL=http://localhost:8010/api" > pwa/.env.local
+make pwa-dev                                # app do aluno em http://localhost:5174
 ```
 
-- Painel: http://localhost:8010 (`dono@demo.test` / `password`, `instrutor@demo.test` / `password`)
-- Postgres: `localhost:5433` (treinosaas / secret), Redis: `localhost:6380`
-- Testes: `make test` (banco `treinosaas_test`, criado pelo `docker/postgres/init.sql`)
+| | Endereço | Acesso |
+|---|---|---|
+| Painel | http://localhost:8010 | `dono@demo.test` / `password` · `instrutor@demo.test` / `password` · `dono@outra.test` / `password` (outra academia) |
+| App do aluno | http://localhost:5174 | Ana Souza `(11) 98765-4321` (primeiro acesso liberado: cria o PIN) |
+| Postgres / Redis | `localhost:5433` / `localhost:6380` | treinosaas / secret |
+
+Qualidade: `make test` (backend, 99 testes) · `make pwa-check` (PWA, 187 testes) · painel: `docker compose run --rm node sh -c "cd backend && npm run lint && npm run typecheck"`.
 
 Academia nova (não existe cadastro público):
 
@@ -28,15 +35,56 @@ Academia nova (não existe cadastro público):
 make artisan c='academy:create "Academia Força Total" --owner-email=dono@forca.com --owner-name="Fulano"'
 ```
 
-## Multi-tenant
+## Como testar cada fluxo
 
-- Toda entidade de academia usa o trait `BelongsToAcademy`: consultas filtradas pela academia atual e gravação
-  conferida. Sem academia no contexto, a consulta **lança exceção** (falha fechada).
-- A academia atual (`App\Tenancy\TenantContext`) é definida só pelos middlewares, a partir de quem está logado
-  (`tenant` para a equipe; o aluno pelo token). Nunca a partir de dado da requisição.
-- Remover o scope só em repositório, em método com nome explícito (ex.: `findInAnyAcademyByPhone`, usado no login).
+**Dono (painel, celular ou computador)**
+1. Entre como `dono@demo.test`. Início: alunos ativos, treinos na semana, fichas vencidas, gráfico de 14 dias,
+   fichas vencendo e alunos sumidos (filtro 7/14/30 dias; Diego aparece nos dois).
+2. Alunos → Novo aluno: cadastre com celular em qualquer formato (`11 9 1234-5678`). Repetir o celular dá erro;
+   celular inválido também. A lista mostra o celular mascarado; busca sem acento ("joao" acha "João").
+3. Ficha do aluno (Ana): acesso ao app (PIN criado em…, Resetar PIN), treinos, frequência de 12 semanas,
+   evolução de cargas por exercício (gráfico + tabela), últimos treinos e avaliações físicas (Nova avaliação).
+4. Inativar: o aluno sai do app na hora. Excluir dados (LGPD): pede "ANONIMIZAR" e apaga nome/celular/avaliações.
+5. Treinos → Novo modelo: fichas A/B/C com cor, exercícios do catálogo (busca + grupo muscular, com imagem),
+   séries, reps, carga, descanso e observação do professor. "Enviar para alunos": escolhe vários, validade
+   (4/6/8/12 semanas) e se substitui o treino atual. Cada aluno recebe a própria cópia.
+6. Na ficha do aluno → Novo treino → do zero ou a partir de um modelo (treino dedicado). Editar um treino de aluno
+   faz o app mostrar "Seu treino foi atualizado". "Salvar como modelo" reaproveita o treino de um aluno.
+7. Avisos: publique (com agendamento, validade e fixar no topo). Aparece no app do aluno.
+8. Isolamento: entre como `dono@outra.test`: só a aluna Carla. Abrir a URL de um aluno da Demo dá 404.
 
-## Papéis
+**Instrutor**: entre como `instrutor@demo.test`. Vê alunos (celular mascarado), cria e envia treinos, registra
+avaliações e vê o histórico. Não cadastra/inativa alunos nem publica avisos (menu e servidor bloqueiam: 403).
 
-`owner` (tudo), `admin` (tudo menos dados da academia/equipe), `instructor` (vê alunos, cria e atribui treinos,
-vê histórico e avaliações). Permissões em `App\Enums\Ability`, cada uma é um Gate.
+**Aluno (PWA)**
+1. Ajustes → Minha academia → Entrar com minha academia → `(11) 98765-4321`.
+2. Primeiro acesso: crie o PIN (1234/1111 são recusados) e aceite o aviso de privacidade. Depois disso o aparelho
+   fica conectado (token de 180 dias renovado a cada uso). PIN errado 5× bloqueia por 15 min.
+3. Fichas: seção "Treino da academia" (programa, instrutor, validade), só leitura, com as observações do professor.
+   As fichas do próprio aluno continuam editáveis como sempre.
+4. Início: "Seu instrutor tem um treino novo!", próximo treino seguindo a sequência da academia, mural de avisos.
+5. Faça e finalize um treino de ficha da academia → aparece no painel (cargas, frequência, último treino).
+   Offline (modo avião) o treino fica na fila e é enviado sozinho quando a internet volta.
+6. Progresso → Peso e medidas: "Avaliações da academia".
+7. No painel, inative a Ana: o app sai do modo academia, mantém o histórico e as fichas próprias.
+8. Sem `VITE_API_URL`: nenhuma menção a academia. É o treinoapp de sempre.
+
+## Multi-tenant e segurança
+
+- Toda entidade de academia usa `BelongsToAcademy`: consultas filtradas pela academia atual e gravação conferida.
+  Sem academia no contexto a consulta **lança exceção** (falha fechada). Ids de outra academia → 404.
+- A academia atual (`App\Tenancy\TenantContext`) vem só de quem está logado: middleware `tenant` (equipe) e
+  `student` (aluno, pelo token). Nunca de dado da requisição.
+- Escapes do filtro só em repositório, com nome explícito (`findInAnyAcademyByPhone` no login,
+  `ownersOf` na sincronização).
+- Papéis: `owner`, `admin` (tudo menos academia/equipe), `instructor`. Cada `App\Enums\Ability` é um Gate e
+  toda rota do painel tem `can:`. Testes cobrem cada rota com id de outra academia.
+- LGPD: listas com celular mascarado; celular completo só para quem gerencia alunos; API do aluno não devolve o
+  celular; nada de telefone/PIN em log; aviso de privacidade no primeiro acesso; anonimização no painel.
+
+## Segundo fator do aluno
+
+Hoje: PIN criado no primeiro acesso, que só fica aberto por 48h depois do cadastro (ou de "Liberar primeiro
+acesso"); o painel mostra quando o PIN foi criado. Para trocar por código no WhatsApp: implementar
+`App\Services\StudentAuth\OtpSender` (recomendado: WhatsApp Cloud API, template de autenticação, cerca de
+US$ 0,03 por código no Brasil; confirmar a tabela atual da Meta) e trocar o binding no `AppServiceProvider`.

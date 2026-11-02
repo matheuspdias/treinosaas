@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "format": "prettier --write .",
     "catalog": "tsx scripts/build-catalog.ts",
+    "catalog:backend": "tsx scripts/export-catalog-backend.ts",
     "assets": "pwa-assets-generator"
   },
   "dependencies": {
