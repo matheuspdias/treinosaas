@@ -1,0 +1,6 @@
+dist
+dev-dist
+coverage
+public/exercises
+src/catalog/generated
+package-lock.json
