@@ -1,0 +1,337 @@
+/*
+ * Landing de venda (resources/views/landing*). CSS próprio, separado do painel: só as classes
+ * usadas na landing entram no arquivo final.
+ */
+@import 'tailwindcss' source(none);
+
+@source '../views/landing.blade.php';
+@source '../views/landing';
+@source '../views/components/landing';
+@source '../js/landing.js';
+
+/* Fontes locais (só latino, que cobre o português). Anton e Barlow 400 são pré-carregadas no <head>. */
+@font-face {
+  font-family: 'Anton';
+  src: url('/fonts/landing/anton-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Barlow';
+  src: url('/fonts/landing/barlow-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Barlow';
+  src: url('/fonts/landing/barlow-latin-500-normal.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Barlow';
+  src: url('/fonts/landing/barlow-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Barlow Condensed';
+  src: url('/fonts/landing/barlow-condensed-latin-600-normal.woff2') format('woff2');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Barlow Condensed';
+  src: url('/fonts/landing/barlow-condensed-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+/* Fallback com proporção parecida com a Anton: os títulos não "pulam" quando a fonte chega. */
+@font-face {
+  font-family: 'Anton Fallback';
+  src: local('Impact'), local('Arial Narrow Bold'), local('Arial');
+  size-adjust: 96%;
+  ascent-override: 118%;
+}
+
+@theme {
+  --font-display: 'Anton', 'Anton Fallback', Impact, 'Arial Narrow', sans-serif;
+  --font-sans: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-cond: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+
+  /* Ferro (escuro), giz (claro) e um único destaque: amarelo anilha. */
+  --color-ferro: #121212;
+  --color-ferro-2: #1b1b1b;
+  --color-chumbo: #2c2c2c;
+  --color-cinza: #a3a098; /* texto secundário no escuro (≥ 7:1) */
+  --color-grafite: #504e49; /* texto secundário no claro (≥ 7:1) */
+  --color-giz: #f2efe8;
+  --color-giz-2: #e5e0d4;
+  --color-anilha: #ffd100;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-ferro);
+    color: var(--color-giz);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-anilha);
+    outline-offset: 3px;
+  }
+  .bg-giz :focus-visible,
+  .bg-anilha :focus-visible {
+    outline-color: var(--color-ferro);
+  }
+  ::selection {
+    background: var(--color-anilha);
+    color: var(--color-ferro);
+  }
+  [id] {
+    scroll-margin-top: 1.5rem;
+  }
+}
+
+@layer components {
+  .wrap {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10;
+  }
+  .kicker {
+    @apply font-cond text-sm font-bold tracking-[0.18em] uppercase;
+  }
+  .display {
+    @apply font-display leading-[0.96] tracking-[-0.005em] uppercase;
+  }
+
+  /* Botões: retos, como placa; o "deslocamento" no hover lembra etiqueta. Uso: class="btn btn-anilha". */
+  .btn {
+    @apply font-cond inline-flex min-h-14 items-center justify-center gap-3 px-6 text-lg font-bold tracking-wide uppercase transition-[transform,box-shadow] duration-150;
+  }
+  .btn-anilha {
+    @apply bg-anilha text-ferro;
+  }
+  .btn-anilha:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 3px 3px 0 currentColor;
+  }
+  .bg-ferro .btn-anilha:hover,
+  .bg-ferro-2 .btn-anilha:hover {
+    box-shadow: 3px 3px 0 var(--color-giz);
+  }
+  .btn-ferro {
+    @apply bg-ferro text-giz;
+  }
+  .btn-ferro:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 3px 3px 0 var(--color-giz);
+  }
+  .btn-linha {
+    @apply border-2 border-current;
+  }
+  .btn-linha:hover {
+    @apply bg-giz text-ferro;
+  }
+
+  /* Moldura de celular para os prints reais do app. */
+  .phone {
+    position: relative;
+    border-radius: 2.4rem;
+    /* topo maior = barra de status: o recorte da câmera não cobre o print */
+    padding: 1.6rem 0.5rem 0.5rem;
+    background: #050505;
+    box-shadow:
+      0 0 0 1px #3a3a3a,
+      0 40px 70px -30px rgb(0 0 0 / 0.75);
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 0.45rem;
+    left: 50%;
+    z-index: 1;
+    width: 26%;
+    height: 0.75rem;
+    border-radius: 999px;
+    background: #050505;
+    transform: translateX(-50%);
+  }
+  .phone > img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0.6rem 0.6rem 1.95rem 1.95rem;
+  }
+
+  /* Notebook para o painel. */
+  .laptop {
+    border-radius: 0.9rem 0.9rem 0 0;
+    padding: 0.6rem 0.6rem 0;
+    background: #0a0a0a;
+    box-shadow: 0 0 0 1px #3a3a3a;
+  }
+  .laptop > img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0.35rem 0.35rem 0 0;
+  }
+  .laptop-base {
+    height: 0.9rem;
+    margin: 0 -6%;
+    border-radius: 0 0 1rem 1rem;
+    background: linear-gradient(#2e2e2e, #1a1a1a);
+    box-shadow: 0 30px 50px -25px rgb(0 0 0 / 0.6);
+  }
+
+  /* Ficha de papel feita em HTML: pautada, torta e rabiscada. */
+  .paper {
+    position: relative;
+    background-color: #f8f4ea;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0 1.9rem,
+      rgb(60 70 90 / 0.16) 1.9rem calc(1.9rem + 1px)
+    );
+    background-position: 0 3.4rem;
+    color: #2f2f2f;
+    box-shadow:
+      0 1px 0 rgb(0 0 0 / 0.08),
+      0 25px 45px -20px rgb(0 0 0 / 0.55);
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 96%,
+      94% 100%,
+      86% 97%,
+      77% 100%,
+      66% 96.5%,
+      55% 99.5%,
+      44% 96.8%,
+      33% 100%,
+      21% 97%,
+      10% 99.6%,
+      0 96.5%
+    );
+  }
+  .paper::after {
+    /* furo de fichário */
+    content: '';
+    position: absolute;
+    top: 1.1rem;
+    left: 0.9rem;
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 999px;
+    background: var(--color-ferro);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.6);
+  }
+  .rabisco {
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    text-decoration-color: #2f2f2f;
+    opacity: 0.55;
+  }
+
+  /* Número vazado gigante (passos, linhas da comparação). */
+  .num-vazado {
+    color: transparent;
+    -webkit-text-stroke: 2px var(--num, var(--color-ferro));
+  }
+
+  /* Fita de sinalização (preto e amarelo). */
+  .fita {
+    height: 0.9rem;
+    background: repeating-linear-gradient(
+      -45deg,
+      var(--color-anilha) 0 1rem,
+      var(--color-ferro) 1rem 2rem
+    );
+  }
+}
+
+/* Risco amarelo em "PAPEL": só decoração (aria-hidden no HTML), o texto continua sendo lido. */
+.risco {
+  position: absolute;
+  left: -0.06em;
+  right: -0.06em;
+  top: 50%;
+  height: 0.2em;
+  background: var(--color-anilha);
+  transform: translateY(-50%) rotate(-4deg);
+  transform-origin: left center;
+  animation: risca 0.55s 0.35s cubic-bezier(0.6, 0, 0.2, 1) both;
+}
+@keyframes risca {
+  from {
+    transform: translateY(-50%) rotate(-4deg) scaleX(0);
+  }
+}
+
+/* Revelação ao rolar (só com JS; sem JS tudo aparece normalmente). */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(1.75rem);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Botão flutuante do WhatsApp: aparece depois do hero e some na chamada final. */
+.wa-float {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 40;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    visibility 0.25s;
+}
+.wa-float[data-hidden] {
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(1rem);
+}
+
+/* FAQ: marcador próprio. */
+.faq summary {
+  list-style: none;
+}
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+.faq summary .mais {
+  transition: transform 0.2s ease;
+}
+.faq details[open] summary .mais {
+  transform: rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .risco {
+    animation: none;
+  }
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .btn,
+  .wa-float {
+    transition: none;
+  }
+}

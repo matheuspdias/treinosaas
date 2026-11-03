@@ -6,7 +6,11 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [
-    laravel({ input: ['resources/js/app.tsx'], refresh: true }),
+    laravel({
+      // A landing tem CSS e JS próprios (sem React): fica leve para quem chega pelo WhatsApp.
+      input: ['resources/js/app.tsx', 'resources/css/landing.css', 'resources/js/landing.js'],
+      refresh: true,
+    }),
     react(),
     tailwindcss(),
   ],

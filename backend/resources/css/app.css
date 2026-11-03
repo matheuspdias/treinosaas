@@ -4,6 +4,9 @@
 
 @source '../js';
 @source '../views';
+@source not '../views/landing';
+@source not '../views/landing.blade.php';
+@source not '../views/components/landing';
 
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 

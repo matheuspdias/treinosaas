@@ -55,7 +55,7 @@ export default function StudentForm({ student }: { student: StudentSummary | nul
           <p>
             {editing
               ? 'Se mudar o celular, o aluno sai do app em todos os aparelhos e entra de novo com o número novo.'
-              : 'Depois de cadastrar, peça para o aluno abrir o app, tocar em "Entrar com minha academia" e criar um PIN. O primeiro acesso fica liberado por 48 horas.'}
+              : 'Depois de cadastrar, envie o link do app pela ficha do aluno (botão do WhatsApp). Ele entra com este celular e cria um PIN. O primeiro acesso fica liberado por 48 horas.'}
           </p>
         </div>
 

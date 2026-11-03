@@ -45,6 +45,18 @@ make artisan c='academy:suspend academia-demo --reason="mensalidade de outubro"'
 make artisan c='academy:reactivate academia-demo'
 ```
 
+## Landing de venda
+
+Em `http://localhost:8010/` (visitante; quem está logado vai para o painel). Blade + CSS/JS próprios, sem React,
+para abrir rápido pelo link do WhatsApp. Tudo o que muda fica em `backend/config/landing.php` / `.env`:
+
+- `LANDING_APP_NAME`: nome do produto em toda a página e nas mensagens do WhatsApp;
+- `LANDING_WHATSAPP`: número dos botões (`5511912345678`); vazio, o WhatsApp abre para escolher o contato;
+- `LANDING_SHOW_PRICING`: mostra a seção de planos (valores em `config/landing.php`, hoje "R$ XX"). Desligada,
+  ela some também do menu.
+
+Prints, prévia do link e ícones: `scripts/landing/README.md`. Fotos e fontes: `CREDITS.md`.
+
 ## Como testar cada fluxo
 
 **Dono (painel, celular ou computador)**

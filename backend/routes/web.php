@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Panel\AppBrandingController;
 use App\Http\Controllers\Panel\AssessmentController;
 use App\Http\Controllers\Panel\CatalogController;
@@ -9,7 +10,8 @@ use App\Http\Controllers\Panel\ProgramController;
 use App\Http\Controllers\Panel\StudentController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/dashboard')->name('home');
+// Landing de venda para visitantes; quem está logado vai para o painel.
+Route::get('/', LandingController::class)->name('home');
 
 // Painel da academia. `tenant` define a academia a partir do usuário (antes do route model
 // binding, ver bootstrap/app.php); cada rota exige a permissão do papel (App\Enums\Ability).
