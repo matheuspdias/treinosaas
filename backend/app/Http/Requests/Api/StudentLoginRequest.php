@@ -14,6 +14,8 @@ class StudentLoginRequest extends FormRequest
         return [
             'phone' => ['required', 'string', 'max:30'],
             'academyId' => ['nullable', 'uuid'],
+            // Slug do app da academia: o login só procura o aluno nela.
+            'academy' => ['nullable', 'string', 'max:80'],
             // No login não reclamamos de PIN "fraco": ele já existe.
             'pin' => $creating ? ['required', 'string', new Pin] : ['required', 'string', 'regex:/^\d{4,6}$/'],
             'device' => ['nullable', 'string', 'max:100'],

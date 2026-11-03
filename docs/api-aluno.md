@@ -11,7 +11,19 @@ Academia suspensa (pagamento): `403 { code: 'academy_suspended', message }` em t
 sozinho quando a academia é reativada.
 Limite de requisições: `429`.
 
+## App da academia (público)
+
+| Método | Rota | Resposta |
+|---|---|---|
+| GET | `/api/academies/{slug}` | `{ slug, name, appName, brandColor, iconUrl }` (404 se não existe ou foi desativada) |
+| GET | `/api/academies/{slug}/manifest.webmanifest` | manifest instalável (`start_url`/`scope` = `PWA_URL/{slug}/`) |
+
+Só a marca: nada de alunos, equipe ou situação da assinatura.
+
 ## Login
+
+Todas as rotas de login aceitam `academy` (slug): o app de cada academia só procura o aluno nela.
+
 
 | Método | Rota | Corpo | Resposta |
 |---|---|---|---|

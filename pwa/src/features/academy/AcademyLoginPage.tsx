@@ -2,15 +2,13 @@ import { Building2, ChevronRight, KeyRound, Phone } from 'lucide-react'
 import { useId, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router'
-import { repos } from '@/data'
-import { useAcademyFeed } from '@/data/hooks'
+import { useAcademyFeed, useBranding } from '@/data/hooks'
 import { ApiError, createPinAndLogin, loginWithPin, lookupPhone } from '@/data/sync'
 import { formatPhoneInput, isCompletePhone, pinProblem } from '@/domain/academy'
 import { toast } from '@/stores/toastStore'
 import { Button } from '@/ui/components/Button'
 import { Card } from '@/ui/components/Card'
 import { TextField } from '@/ui/components/Field'
-import { PageHeader } from '@/ui/components/PageHeader'
 import { PRIVACY_TEXT } from './strings'
 
 type Step = 'phone' | 'choose' | 'pin' | 'create' | DeadEnd
@@ -45,7 +43,7 @@ const DEAD_ENDS: Record<DeadEnd, { title: string; text: string }> = {
   },
   not_found: {
     title: 'Celular não encontrado',
-    text: 'Confira o número. O app é liberado pela sua academia: peça para a recepção fazer seu cadastro.',
+    text: 'Confira o número ou peça para a recepção fazer seu cadastro nesta academia.',
   },
 }
 
@@ -63,6 +61,8 @@ const pinInputProps = {
 export function AcademyLoginPage() {
   const navigate = useNavigate()
   const feed = useAcademyFeed()
+  const branding = useBranding()
+  const brand = branding.status === 'ready' ? branding.branding : null
   const privacyId = useId()
   const [step, setStep] = useState<Step>('phone')
   const [phone, setPhone] = useState('')
@@ -117,7 +117,6 @@ export function AcademyLoginPage() {
   }
 
   const done = async (studentName: string) => {
-    await repos.settings.update({ onboardingDone: true })
     toast(`Olá, ${studentName.split(' ')[0]}! Seus treinos da academia estão chegando.`, {
       tone: 'success',
     })
@@ -152,7 +151,23 @@ export function AcademyLoginPage() {
 
   return (
     <div className="min-h-dvh pb-8 safe-bottom">
-      <PageHeader title="Entrar" />
+      {/* safe-top substitui o padding-top: o espaço extra fica num div interno. */}
+      <header className="safe-top">
+        <div className="flex flex-col items-center px-4 pt-10 pb-6 text-center">
+          {brand?.iconUrl ? (
+            <img src={brand.iconUrl} alt="" className="size-20 rounded-[22%] shadow-card" />
+          ) : (
+            <span
+              className="flex size-20 items-center justify-center rounded-[22%] bg-accent-soft text-accent"
+              aria-hidden
+            >
+              <Building2 className="size-10" />
+            </span>
+          )}
+          <h1 className="mt-4 text-2xl font-extrabold tracking-tight">{brand?.name ?? 'Entrar'}</h1>
+          <p className="text-fg-muted">Entre para ver seus treinos</p>
+        </div>
+      </header>
       <div className="px-4">
         {step === 'phone' && feed.lastError && !errors.form && (
           <p role="status" className="mb-4 rounded-control bg-warning-soft px-4 py-3">
@@ -167,9 +182,7 @@ export function AcademyLoginPage() {
 
         {step === 'phone' && (
           <form onSubmit={submitPhone} className="space-y-5" noValidate>
-            <p className="text-fg-muted">
-              O app é liberado pela sua academia. Entre com o celular que você informou na recepção.
-            </p>
+            <p className="text-fg-muted">Use o celular que você informou na recepção.</p>
             <TextField
               label="Celular com DDD"
               type="tel"

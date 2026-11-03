@@ -40,9 +40,9 @@ class StudentAuthService
      *
      * @return array{next: string, academies: list<array{id: string, name: string, next: string}>}
      */
-    public function lookup(string $phone): array
+    public function lookup(string $phone, ?string $academySlug = null): array
     {
-        $candidates = $this->candidates($phone);
+        $candidates = $this->candidates($phone, $academySlug);
         $academies = $candidates->map(fn (Student $s) => [
             'id' => $s->academy_id,
             'name' => $s->academy->name,
@@ -58,9 +58,9 @@ class StudentAuthService
         return ['next' => $next, 'academies' => count($academies) > 1 ? $academies : []];
     }
 
-    public function firstAccess(string $phone, ?string $academyId, string $pin, string $device): NewAccessToken
+    public function firstAccess(string $phone, ?string $academyId, string $pin, string $device, ?string $academySlug = null): NewAccessToken
     {
-        $student = $this->pick($phone, $academyId);
+        $student = $this->pick($phone, $academyId, $academySlug);
         $this->ensureCanEnter($student);
 
         if (! $student->canCreatePin()) {
@@ -84,9 +84,9 @@ class StudentAuthService
         return $this->issueToken($student, $device);
     }
 
-    public function login(string $phone, ?string $academyId, string $pin, string $device): NewAccessToken
+    public function login(string $phone, ?string $academyId, string $pin, string $device, ?string $academySlug = null): NewAccessToken
     {
-        $student = $this->pick($phone, $academyId);
+        $student = $this->pick($phone, $academyId, $academySlug);
         $this->ensureCanEnter($student);
 
         if ($student->isLocked()) {
@@ -177,11 +177,12 @@ class StudentAuthService
 
     /**
      * Alunos com esse telefone em academias que existem (inclui suspensas e alunos inativos,
-     * para o app explicar o bloqueio em vez de dizer "não encontrado").
+     * para o app explicar o bloqueio em vez de dizer "não encontrado"). Com o slug, só nessa academia
+     * (o app de cada academia só aceita os alunos dela).
      *
      * @return Collection<int, Student>
      */
-    private function candidates(string $phone): Collection
+    private function candidates(string $phone, ?string $academySlug = null): Collection
     {
         $parsed = PhoneNumber::tryParse($phone);
 
@@ -191,12 +192,13 @@ class StudentAuthService
 
         return $this->students->findInAnyAcademyByPhone($parsed)
             ->filter(fn (Student $s) => $s->academy->isActive())
+            ->filter(fn (Student $s) => $academySlug === null || $s->academy->slug === $academySlug)
             ->values();
     }
 
-    private function pick(string $phone, ?string $academyId): Student
+    private function pick(string $phone, ?string $academyId, ?string $academySlug): Student
     {
-        $candidates = $this->candidates($phone);
+        $candidates = $this->candidates($phone, $academySlug);
         $student = $academyId !== null
             ? $candidates->firstWhere('academy_id', $academyId)
             : ($candidates->count() === 1 ? $candidates->first() : null);

@@ -36,91 +36,9 @@ export default defineConfig({
       registerType: 'prompt',
       injectRegister: false,
       includeAssets: ['favicon.svg', 'favicon.ico', 'apple-touch-icon-180x180.png'],
-      manifest: {
-        id: '/',
-        name: 'TreinoApp: registro de treinos',
-        short_name: 'Treino',
-        description:
-          'Registre séries e cargas da musculação em segundos, com fichas, descanso automático, progressão e recordes. Funciona offline.',
-        lang: 'pt-BR',
-        dir: 'ltr',
-        start_url: '/',
-        scope: '/',
-        display: 'standalone',
-        orientation: 'portrait',
-        background_color: '#0b0d10',
-        theme_color: '#0b0d10',
-        categories: ['health', 'fitness', 'sports', 'lifestyle'],
-        prefer_related_applications: false,
-        icons: [
-          { src: 'pwa-64x64.png', sizes: '64x64', type: 'image/png' },
-          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-          {
-            src: 'maskable-icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable',
-          },
-          { src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml' },
-        ],
-        shortcuts: [
-          {
-            name: 'Próximo treino',
-            short_name: 'Treinar',
-            description: 'Abre a tela inicial com o próximo treino da sequência',
-            url: '/?origem=atalho',
-            icons: [{ src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' }],
-          },
-          {
-            name: 'Progresso',
-            url: '/progresso',
-            icons: [{ src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' }],
-          },
-          {
-            name: 'Exercícios',
-            url: '/exercicios',
-            icons: [{ src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' }],
-          },
-        ],
-        screenshots: [
-          {
-            src: 'screenshots/inicio.webp',
-            sizes: '1170x2532',
-            type: 'image/webp',
-            form_factor: 'narrow',
-            label: 'Próximo treino da sequência',
-          },
-          {
-            src: 'screenshots/treino.webp',
-            sizes: '1170x2532',
-            type: 'image/webp',
-            form_factor: 'narrow',
-            label: 'Modo treino com sugestão de carga',
-          },
-          {
-            src: 'screenshots/progresso.webp',
-            sizes: '1170x2532',
-            type: 'image/webp',
-            form_factor: 'narrow',
-            label: 'Calendário e sequência de semanas',
-          },
-          {
-            src: 'screenshots/historico.webp',
-            sizes: '1170x2532',
-            type: 'image/webp',
-            form_factor: 'narrow',
-            label: 'Evolução de carga por exercício',
-          },
-          {
-            src: 'screenshots/wide.webp',
-            sizes: '1920x1080',
-            type: 'image/webp',
-            form_factor: 'wide',
-            label: 'Progresso no computador',
-          },
-        ],
-      },
+      // Sem manifest fixo: cada academia tem o seu, gerado pela API com nome, cor e ícone
+      // (link inserido em src/app/brandHead.ts).
+      manifest: false,
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,json}'],
         // As imagens do catálogo são ~18 MB: ficam fora do precache e entram em cache sob demanda.

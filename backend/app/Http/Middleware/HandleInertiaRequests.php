@@ -68,6 +68,7 @@ class HandleInertiaRequests extends Middleware
             'id' => $context->id(),
             'name' => $context->academy()->name,
             'suspended' => $context->academy()->isSuspended(),
+            'appUrl' => $context->academy()->appUrl(),
             'role' => $context->role()?->value,
             'roleLabel' => $context->role()?->label(),
             'abilities' => array_values(array_map(

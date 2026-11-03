@@ -64,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $phoneKey = fn (Request $request) => preg_replace('/\D+/', '', (string) $request->input('phone'));
 
+        RateLimiter::for('academy-public', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
         RateLimiter::for('student-lookup', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
 
         // PIN de 4 dígitos: além do bloqueio por aluno (5 erros = 15 min), limita por IP e por telefone.

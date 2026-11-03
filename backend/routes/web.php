@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Panel\AppBrandingController;
 use App\Http\Controllers\Panel\AssessmentController;
 use App\Http\Controllers\Panel\CatalogController;
 use App\Http\Controllers\Panel\DashboardController;
@@ -16,6 +17,11 @@ Route::middleware(['auth', 'tenant'])->group(function () {
     Route::get('dashboard', DashboardController::class)->middleware('can:dashboard.view')->name('dashboard');
 
     Route::get('catalogo/exercicios.json', CatalogController::class)->name('catalog.exercises');
+
+    Route::middleware('can:academy.manage')->group(function () {
+        Route::get('settings/app', [AppBrandingController::class, 'edit'])->name('app-branding.edit');
+        Route::post('settings/app', [AppBrandingController::class, 'update'])->name('app-branding.update');
+    });
 
     Route::middleware('can:students.view')->group(function () {
         Route::get('alunos', [StudentController::class, 'index'])->name('students.index');

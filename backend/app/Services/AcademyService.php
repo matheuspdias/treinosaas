@@ -56,7 +56,10 @@ class AcademyService
         $base = Str::slug($name) ?: 'academia';
         $slug = $base;
 
-        for ($i = 2; $this->academies->slugExists($slug); $i++) {
+        $taken = fn (string $slug) => in_array($slug, config('treino.reserved_slugs'), true)
+            || $this->academies->slugExists($slug);
+
+        for ($i = 2; $taken($slug); $i++) {
             $slug = "{$base}-{$i}";
         }
 

@@ -1,5 +1,6 @@
 import {
   accessState,
+  parseAcademySlug,
   activeAcademyPrograms,
   formatPhoneInput,
   isAcademyPlan,
@@ -138,5 +139,21 @@ describe('accessState', () => {
     expect(accessState(session, { blocked: null, lastSyncAt: null }, loggedIn + 8 * day)).toBe(
       'needs_connection',
     )
+  })
+})
+
+describe('parseAcademySlug', () => {
+  it('pega o primeiro segmento do endereço', () => {
+    expect(parseAcademySlug('/academia-demo/')).toBe('academia-demo')
+    expect(parseAcademySlug('/academia-demo/fichas/123')).toBe('academia-demo')
+    expect(parseAcademySlug('/forca2')).toBe('forca2')
+  })
+
+  it('fora de uma academia (raiz, arquivos do app, formato inválido) é null', () => {
+    expect(parseAcademySlug('/')).toBeNull()
+    expect(parseAcademySlug('/assets/index.js')).toBeNull()
+    expect(parseAcademySlug('/exercises/x/0.webp')).toBeNull()
+    expect(parseAcademySlug('/Academia')).toBeNull()
+    expect(parseAcademySlug('/-x')).toBeNull()
   })
 })

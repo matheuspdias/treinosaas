@@ -1,8 +1,8 @@
-import { Link, router, useForm } from '@inertiajs/react'
-import { KeyRound, Pencil, ShieldOff, UserCheck, UserMinus } from 'lucide-react'
+import { Link, router, useForm, usePage } from '@inertiajs/react'
+import { KeyRound, MessageCircle, Pencil, ShieldOff, UserCheck, UserMinus } from 'lucide-react'
 import { useState } from 'react'
 import { formatDateTime } from '@/lib/format'
-import type { StudentSummary } from '@/types'
+import type { SharedData, StudentSummary } from '@/types'
 import { Button } from '@/ui/components/Button'
 import { buttonClass } from '@/ui/components/buttonClass'
 import { Card } from '@/ui/components/Card'
@@ -21,7 +21,7 @@ function accessText(s: StudentSummary, hours: number): { title: string; text: st
     case 'pending':
       return {
         title: 'Esperando o primeiro acesso',
-        text: `O aluno abre o app, toca em "Entrar com minha academia", informa o celular e cria um PIN${
+        text: `O aluno abre o link do app da academia, informa o celular e cria um PIN${
           s.firstAccessUntil ? ` até ${formatDateTime(s.firstAccessUntil)}` : ''
         }.`,
       }
@@ -44,6 +44,14 @@ export function AccessCard({ student, hours }: { student: StudentSummary; hours:
   const inactive = student.status === 'inactive'
   const info = accessText(student, hours)
   const close = () => setConfirm(null)
+  const appUrl = usePage<SharedData>().props.academy?.appUrl
+  const phoneDigits = student.phone?.replace(/\D/g, '')
+  const whatsapp =
+    appUrl && phoneDigits
+      ? `https://wa.me/55${phoneDigits}?text=${encodeURIComponent(
+          `Olá, ${student.name.split(' ')[0]}! Seu treino está no app da academia: ${appUrl}\nEntre com este celular e crie seu PIN.`,
+        )}`
+      : null
 
   return (
     <Card className="p-5">
@@ -71,6 +79,16 @@ export function AccessCard({ student, hours }: { student: StudentSummary; hours:
         >
           <Pencil className="size-4" /> Editar
         </Link>
+        {!inactive && student.access !== 'active' && whatsapp && (
+          <a
+            href={whatsapp}
+            target="_blank"
+            rel="noreferrer"
+            className={buttonClass({ variant: 'secondary' })}
+          >
+            <MessageCircle className="size-4" /> Enviar link pelo WhatsApp
+          </a>
+        )}
         {!inactive && (
           <Button
             variant="secondary"

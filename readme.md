@@ -4,7 +4,7 @@ TreinoApp para academias: o app de treinos do aluno (PWA offline) + painel da ac
 
 ```
 backend/   Laravel 13 (controller → service → repository) + painel Inertia/React + API do aluno (Sanctum)
-pwa/       app do aluno (Vite/React, offline-first, IndexedDB). Só funciona com login numa academia (precisa de VITE_API_URL)
+pwa/       app do aluno (Vite/React, offline-first, IndexedDB). Um app por academia em /{slug}/ (nome, cor e ícone dela)
 docker/    php-fpm 8.4, nginx, postgres 16, redis
 docs/      contrato da API do aluno (api-aluno.md) e deploy (deploy.md)
 ```
@@ -15,19 +15,20 @@ docs/      contrato da API do aluno (api-aluno.md) e deploy (deploy.md)
 make build && make up
 cp backend/.env.example backend/.env && make artisan c="key:generate"   # primeira vez
 make fresh                                  # migra e cria os dados de demonstração
+make artisan c=storage:link                 # ícones dos apps das academias (primeira vez)
 make panel-install && make panel-build      # painel (ou make panel-dev para HMR)
 make pwa-install
 echo "VITE_API_URL=http://localhost:8010/api" > pwa/.env.local
-make pwa-dev                                # app do aluno em http://localhost:5174
+make pwa-dev                                # app da Academia Demo em http://localhost:5174/academia-demo/
 ```
 
 | | Endereço | Acesso |
 |---|---|---|
 | Painel | http://localhost:8010 | `dono@demo.test` / `password` · `instrutor@demo.test` / `password` · `dono@outra.test` / `password` (outra academia) |
-| App do aluno | http://localhost:5174 | Ana Souza `(11) 98765-4321` (primeiro acesso liberado: cria o PIN) |
+| App do aluno | http://localhost:5174/academia-demo/ | Ana Souza `(11) 98765-4321` (primeiro acesso liberado: cria o PIN) |
 | Postgres / Redis | `localhost:5433` / `localhost:6380` | treinosaas / secret |
 
-Qualidade: `make test` (backend, 104 testes) · `make pwa-check` (PWA, 192 testes) · painel: `docker compose run --rm node sh -c "cd backend && npm run lint && npm run typecheck"`.
+Qualidade: `make test` (backend, 111 testes) · `make pwa-check` (PWA, 205 testes) · painel: `docker compose run --rm node sh -c "cd backend && npm run lint && npm run typecheck"`.
 
 Academia nova (não existe cadastro público):
 
@@ -65,9 +66,20 @@ make artisan c='academy:reactivate academia-demo'
 **Instrutor**: entre como `instrutor@demo.test`. Vê alunos (celular mascarado), cria e envia treinos, registra
 avaliações e vê o histórico. Não cadastra/inativa alunos nem publica avisos (menu e servidor bloqueiam: 403).
 
+**App de cada academia (dono)**
+1. Ajustes → App do aluno: nome do app, cor (ajustada sozinha para ter contraste no tema claro e escuro) e logo.
+   O ícone é recortado no navegador (512×512, versão normal e "maskable" para Android) com fundo branco, preto
+   ou na cor da academia. Prévia do ícone na tela inicial. Só o dono vê essa tela (admin/instrutor: 403).
+2. O link `http://localhost:5174/academia-demo/` aparece lá (copiar/abrir) e na ficha do aluno que ainda não
+   entrou há "Enviar link pelo WhatsApp" com o link e a mensagem prontos.
+3. Ao abrir o link, o app já vem com o nome, a cor e o ícone da academia, e "Instalar"/"Adicionar à tela de início"
+   cria o app da academia (manifest em `/api/academies/{slug}/manifest.webmanifest`).
+4. `http://localhost:5174/` (sem academia) mostra "Abra pelo link da sua academia"; slug inexistente, "Academia não
+   encontrada". O app da Academia Demo não aceita a Carla (`(21) 98765-4321`), que é da outra academia.
+
 **Aluno (PWA)**
-1. Abra o app: a única tela é "Entrar" (não existe uso sem academia). Informe `(11) 98765-4321`.
-   Um celular não cadastrado mostra "Celular não encontrado: peça para a recepção fazer seu cadastro".
+1. Abra `http://localhost:5174/academia-demo/`: a única tela é "Entrar" (não existe uso sem academia).
+   Informe `(11) 98765-4321`. Um celular não cadastrado nesta academia mostra "Celular não encontrado".
 2. Primeiro acesso: crie o PIN (1234/1111 são recusados) e aceite o aviso de privacidade. Depois disso o aparelho
    fica conectado (token de 180 dias renovado a cada uso). PIN errado 5× bloqueia por 15 min.
 3. Fichas: seção "Treino da academia" (programa, instrutor, validade), só leitura, com as observações do professor.
@@ -80,8 +92,8 @@ avaliações e vê o histórico. Não cadastra/inativa alunos nem publica avisos
    mesmo offline. Treinos feitos antes ficam na fila. `academy:reactivate` + "Tentar de novo" libera tudo.
 8. Sem internet o app funciona por até 7 dias desde a última confirmação com a academia; depois pede conexão.
 9. No painel, inative a Ana: o app volta para a tela de entrada ("Cadastro inativo"), o histórico fica no aparelho.
-10. Ajustes → Minha academia → "Sair ou trocar de academia": volta para a tela de entrada (outra academia, mesmo
-    celular, aparece a escolha da academia).
+10. Ajustes → Minha academia → "Sair da academia": volta para a tela de entrada. Cada academia tem dados próprios
+    no aparelho (um banco por app), então o mesmo celular pode usar o app de duas academias sem misturar nada.
 
 ## Multi-tenant e segurança
 

@@ -1,11 +1,19 @@
 <?php
 
+use App\Http\Controllers\Api\AcademyController;
 use App\Http\Controllers\Api\Student\AuthController;
 use App\Http\Controllers\Api\Student\FeedController;
 use App\Http\Controllers\Api\Student\MeController;
 use App\Http\Controllers\Api\Student\ProgramController;
 use App\Http\Controllers\Api\Student\WorkoutController;
 use Illuminate\Support\Facades\Route;
+
+// Marca pública do app de cada academia (a PWA carrega pelo slug da URL).
+Route::prefix('academies/{slug}')->name('api.academies.')->where(['slug' => '[a-z0-9-]+'])
+    ->middleware('throttle:academy-public')->group(function () {
+        Route::get('/', [AcademyController::class, 'show'])->name('show');
+        Route::get('manifest.webmanifest', [AcademyController::class, 'manifest'])->name('manifest');
+    });
 
 // API do app do aluno (PWA). Autenticação por token do aparelho (Sanctum); JSON em camelCase.
 Route::prefix('student')->name('api.student.')->group(function () {

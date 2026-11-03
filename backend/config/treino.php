@@ -12,4 +12,9 @@ return [
         'second_factor' => env('STUDENT_SECOND_FACTOR', 'pin'),
     ],
 
+    // App do aluno (PWA). Cada academia tem o seu em {pwa_url}/{slug}, com nome, cor e ícone próprios.
+    'pwa_url' => rtrim((string) env('PWA_URL', 'http://localhost:5174'), '/'),
+
+    // Primeiro segmento de URL que a PWA usa para arquivos: nenhuma academia pode ter esse slug.
+    'reserved_slugs' => ['assets', 'exercises', 'splash', 'screenshots', 'api', 'sw', 'workbox', 'manifest', 'importar', 'academia'],
 ];

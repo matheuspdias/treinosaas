@@ -17,9 +17,12 @@ class AuthController extends Controller
 
     public function lookup(Request $request): JsonResponse
     {
-        $data = $request->validate(['phone' => ['required', 'string', 'max:30']]);
+        $data = $request->validate([
+            'phone' => ['required', 'string', 'max:30'],
+            'academy' => ['nullable', 'string', 'max:80'],
+        ]);
 
-        return response()->json($this->auth->lookup($data['phone']));
+        return response()->json($this->auth->lookup($data['phone'], $data['academy'] ?? null));
     }
 
     public function firstAccess(StudentLoginRequest $request): JsonResponse
@@ -29,6 +32,7 @@ class AuthController extends Controller
             $request->validated('academyId'),
             $request->validated('pin'),
             $request->device(),
+            $request->validated('academy'),
         );
 
         return $this->tokenResponse($token, 201);
@@ -41,6 +45,7 @@ class AuthController extends Controller
             $request->validated('academyId'),
             $request->validated('pin'),
             $request->device(),
+            $request->validated('academy'),
         );
 
         return $this->tokenResponse($token);

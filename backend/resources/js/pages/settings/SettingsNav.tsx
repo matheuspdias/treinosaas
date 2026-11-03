@@ -1,4 +1,5 @@
 import { Link, usePage } from '@inertiajs/react'
+import { useCan } from '@/lib/useCan'
 import { cn } from '@/ui/cn'
 
 const ITEMS = [
@@ -9,9 +10,13 @@ const ITEMS = [
 
 export function SettingsNav() {
   const { url } = usePage()
+  const can = useCan()
+  const items = can('academy.manage')
+    ? [...ITEMS, { href: '/settings/app', label: 'App do aluno' }]
+    : ITEMS
   return (
     <nav aria-label="Ajustes" className="flex gap-2 overflow-x-auto px-4 pb-2 lg:px-6">
-      {ITEMS.map((i) => (
+      {items.map((i) => (
         <Link
           key={i.href}
           href={i.href}

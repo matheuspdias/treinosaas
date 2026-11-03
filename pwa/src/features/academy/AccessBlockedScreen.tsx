@@ -34,9 +34,9 @@ export function AccessBlockedScreen({
 
   const leave = async () => {
     const ok = await confirm({
-      title: 'Sair desta academia?',
+      title: 'Sair do app?',
       description:
-        'Você volta para a tela de entrada e pode entrar com o celular cadastrado em outra academia.',
+        'Você volta para a tela de entrada. Seus treinos continuam guardados no aparelho.',
       confirmLabel: 'Sair',
       tone: 'danger',
     })
@@ -85,7 +85,7 @@ export function AccessBlockedScreen({
           icon={<LogOut className="size-5" />}
           onClick={() => void leave()}
         >
-          Entrar com outra academia
+          Sair
         </Button>
       </div>
     </main>

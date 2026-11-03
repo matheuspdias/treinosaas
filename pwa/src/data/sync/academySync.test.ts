@@ -12,7 +12,11 @@ import {
   syncNow,
 } from './academySync'
 
-vi.mock('../remote/config', () => ({ API_URL: 'http://api.test/api' }))
+vi.mock('../remote/config', () => ({
+  API_URL: 'http://api.test/api',
+  ACADEMY_SLUG: null,
+  APP_BASE: '',
+}))
 
 const AUTH: AcademySession = {
   token: 'tok',

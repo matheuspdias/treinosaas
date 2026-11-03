@@ -2,7 +2,7 @@ import type { z } from 'zod'
 import { API_URL } from './config'
 
 export type ApiErrorKind =
-  'offline' | 'validation' | 'auth' | 'blocked' | 'rate' | 'server' | 'invalid'
+  'offline' | 'validation' | 'auth' | 'blocked' | 'not_found' | 'rate' | 'server' | 'invalid'
 
 /** Erro da API com mensagem pronta para mostrar (pt-BR). */
 export class ApiError extends Error {
@@ -89,6 +89,9 @@ export async function apiRequest<T = undefined>(
   // Academia suspensa: a sessão continua válida e volta a funcionar quando ela for reativada.
   if (response.status === 403 && typeof data.code === 'string') {
     throw new ApiError('blocked', message || 'Acesso bloqueado. Fale com a academia.', data.code)
+  }
+  if (response.status === 404) {
+    throw new ApiError('not_found', message || 'Não encontrado.')
   }
   if (response.status === 422) {
     const fields = firstFieldErrors(data.errors)

@@ -1,4 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import { useSyncExternalStore } from 'react'
 import { DEFAULT_SETTINGS, EMPTY_ACADEMY_FEED } from '@/domain/types'
 import type {
   AcademyFeed,
@@ -10,6 +11,8 @@ import type {
   Session,
   Settings,
 } from '@/domain/types'
+import { getBrandingState, subscribeBranding } from '../branding'
+import type { BrandingState } from '../branding'
 import { repos } from '../index'
 
 /*
@@ -79,4 +82,9 @@ export function useAcademyFeedState(): AcademyFeed | undefined {
 /** Treinos e marcações esperando internet para ir para a academia. */
 export function useOutboxCount(): number {
   return useLiveQuery(() => repos.outbox.count(), []) ?? 0
+}
+
+/** Marca da academia do app aberto (nome, cor, ícone). */
+export function useBranding(): BrandingState {
+  return useSyncExternalStore(subscribeBranding, getBrandingState)
 }

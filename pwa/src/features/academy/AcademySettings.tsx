@@ -31,7 +31,7 @@ export function AcademySettings() {
       description:
         pending > 0
           ? `${pending === 1 ? '1 item ainda não foi enviado' : `${pending} itens ainda não foram enviados`} para a academia e vai se perder. Para usar o app de novo, entre com seu celular e PIN.`
-          : 'Para usar o app de novo (nesta ou em outra academia), entre com seu celular e PIN. Seu histórico continua no aparelho.',
+          : 'Para usar o app de novo, entre com seu celular e PIN. Seu histórico continua no aparelho.',
       confirmLabel: 'Sair',
       tone: 'danger',
     })
@@ -82,7 +82,7 @@ export function AcademySettings() {
           Trocar PIN
         </Button>
         <Button variant="danger" block onClick={() => void leave()}>
-          Sair ou trocar de academia
+          Sair da academia
         </Button>
       </div>
       <ChangePinSheet open={pinOpen} onClose={() => setPinOpen(false)} />

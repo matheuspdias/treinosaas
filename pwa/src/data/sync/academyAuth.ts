@@ -2,6 +2,7 @@ import { phoneDigits } from '@/domain/academy'
 import type { AcademySession } from '@/domain/types'
 import { repos } from '../index'
 import { apiRequest } from '../remote/client'
+import { ACADEMY_SLUG } from '../remote/config'
 import { lookupResponseSchema, sessionResponseSchema } from '../remote/schemas'
 import type { LookupResponse, SessionResponse } from '../remote/schemas'
 import { endAcademySession, syncNow } from './academySync'
@@ -18,7 +19,8 @@ function deviceName(): string {
 export function lookupPhone(phone: string): Promise<LookupResponse> {
   return apiRequest('/student/auth/lookup', {
     method: 'POST',
-    body: { phone: phoneDigits(phone) },
+    // O app de cada academia só procura o aluno nela.
+    body: { phone: phoneDigits(phone), academy: ACADEMY_SLUG },
     schema: lookupResponseSchema,
   })
 }
@@ -37,6 +39,9 @@ async function start(response: SessionResponse): Promise<AcademySession> {
     academy: response.academy,
     loggedInAt: new Date().toISOString(),
   }
+  // Antes da sessão: assim que ela existe o app sai da tela de entrada, e o aluno da academia
+  // não passa pelas boas-vindas (os treinos chegam da academia).
+  await repos.settings.update({ onboardingDone: true })
   await repos.academy.saveSession(session)
   await repos.academy.updateFeed({ lastError: null })
   void syncNow()
@@ -47,6 +52,7 @@ const body = ({ phone, pin, academyId }: Credentials) => ({
   phone: phoneDigits(phone),
   pin,
   device: deviceName(),
+  academy: ACADEMY_SLUG,
   ...(academyId ? { academyId } : {}),
 })
 

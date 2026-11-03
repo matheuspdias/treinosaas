@@ -121,3 +121,28 @@ export function accessState(
   if (now - lastConfirmed > OFFLINE_GRACE_DAYS * 86_400_000) return 'needs_connection'
   return 'ok'
 }
+
+// ---------------------------------------------------------------------------
+// Endereço do app da academia
+// ---------------------------------------------------------------------------
+
+/** Primeiros segmentos usados por arquivos do app: nunca são academias (o backend também bloqueia). */
+const RESERVED_SEGMENTS = new Set([
+  'assets',
+  'exercises',
+  'splash',
+  'screenshots',
+  'api',
+  'sw',
+  'workbox',
+  'manifest',
+  'importar',
+  'academia',
+])
+
+/** Cada academia tem o seu app em /{slug}/...: devolve o slug, ou null fora de uma academia. */
+export function parseAcademySlug(pathname: string): string | null {
+  const first = pathname.split('/')[1] ?? ''
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(first)) return null
+  return RESERVED_SEGMENTS.has(first) ? null : first
+}

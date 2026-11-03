@@ -17,6 +17,8 @@ export interface CurrentAcademy {
   name: string
   /** Pagamento em atraso: os alunos ficam bloqueados no app até reativar. */
   suspended: boolean
+  /** Link do app do aluno desta academia (para enviar aos alunos). */
+  appUrl: string
   role: Role | null
   roleLabel: string | null
   abilities: Ability[]

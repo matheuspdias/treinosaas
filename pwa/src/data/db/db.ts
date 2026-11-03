@@ -1,6 +1,7 @@
 import Dexie, { type Table } from 'dexie'
 import type { BodyMetric, CustomExercise, MediaBlob, Plan, Session } from '@/domain/types'
 import type { OutboxItem } from '../sync/outbox'
+import { ACADEMY_SLUG } from '../remote/config'
 import { applyMigrations } from './migrations'
 
 export interface SettingRow {
@@ -31,4 +32,5 @@ export class TreinoDB extends Dexie {
   }
 }
 
-export const db = new TreinoDB()
+// Um banco por academia: o mesmo celular pode ter o app de duas academias instalado sem misturar dados.
+export const db = new TreinoDB(ACADEMY_SLUG ? `treinoapp-${ACADEMY_SLUG}` : 'treinoapp')

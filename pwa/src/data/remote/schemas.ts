@@ -26,6 +26,15 @@ export const lookupNext = z.enum([
 ])
 export type LookupNext = z.infer<typeof lookupNext>
 
+export const brandingSchema = z.object({
+  slug: z.string(),
+  name: z.string(),
+  appName: z.string(),
+  brandColor: z.string().nullable(),
+  iconUrl: z.string().nullable(),
+})
+export type Branding = z.infer<typeof brandingSchema>
+
 export const lookupResponseSchema = z.object({
   next: lookupNext,
   academies: z.array(

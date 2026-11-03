@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { EQUIPMENT, MUSCLES, PLAN_COLORS } from '@/domain/types'
 import type { CustomExercise, Plan } from '@/domain/types'
+import { APP_BASE } from '@/data/remote/config'
 
 /*
  * Ficha compartilhável por link, sem backend: JSON compacto → deflate → base64url,
@@ -133,6 +134,10 @@ export async function decodeSharedPlan(code: string): Promise<DecodeResult> {
   }
 }
 
-export function shareUrl(code: string, origin: string = location.origin): string {
-  return `${origin}/importar#${code}`
+export function shareUrl(
+  code: string,
+  origin: string = location.origin,
+  base: string = APP_BASE,
+): string {
+  return `${origin}${base}/importar#${code}`
 }
