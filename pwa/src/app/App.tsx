@@ -3,6 +3,8 @@ import { RouterProvider } from 'react-router'
 import { refreshBranding } from '@/data/branding'
 import { useBranding } from '@/data/hooks'
 import { NoAcademyPage } from '@/features/academy/NoAcademyPage'
+import { InstallScreen } from '@/features/install/InstallScreen'
+import { useInstall } from '@/features/install/useInstall'
 import { PageSpinner } from '@/ui/components/Spinner'
 import { AppEffects } from './AppEffects'
 import { applyBranding } from './brandHead'
@@ -13,6 +15,7 @@ import { UpdatePrompt } from './UpdatePrompt'
 
 export function App() {
   const branding = useBranding()
+  const install = useInstall()
   useEffect(() => void refreshBranding(), [])
   useEffect(() => applyBranding(branding), [branding])
 
@@ -20,6 +23,8 @@ export function App() {
   if (branding.status === 'none') return <NoAcademyPage />
   if (branding.status === 'not_found') return <NoAcademyPage notFound />
   if (branding.status === 'loading') return <PageSpinner />
+  // No celular, o app é usado instalado: a instalação vem antes do login.
+  if (install.ask) return <InstallScreen brand={branding.branding} />
 
   return (
     <>
