@@ -9,7 +9,6 @@ import {
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { repos } from '@/data'
-import { academyEnabled } from '@/data/sync'
 import { applyTemplate, createNextPlan } from '@/features/plans/planActions'
 import { toast } from '@/stores/toastStore'
 import type { WorkoutTemplate } from '@/templates/templates'
@@ -94,17 +93,6 @@ export function OnboardingPage() {
             Começar
             <ChevronRight className="size-5" />
           </Button>
-          {academyEnabled && (
-            <Button
-              variant="ghost"
-              size="lg"
-              block
-              className="mt-2"
-              onClick={() => navigate('/academia/entrar')}
-            >
-              Entrar com minha academia
-            </Button>
-          )}
         </div>
       </div>
     )

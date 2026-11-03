@@ -258,6 +258,8 @@ export interface AcademyFeed {
   assessments: AcademyAssessment[]
   lastSyncAt: ISODate | null
   lastError: string | null
+  /** Bloqueio informado pelo servidor (ex.: academia suspensa). Vale também offline. */
+  blocked: { code: string; message: string } | null
 }
 
 export const EMPTY_ACADEMY_FEED: AcademyFeed = {
@@ -265,6 +267,7 @@ export const EMPTY_ACADEMY_FEED: AcademyFeed = {
   assessments: [],
   lastSyncAt: null,
   lastError: null,
+  blocked: null,
 }
 
 // ---------------------------------------------------------------------------

@@ -8,4 +8,3 @@ export {
 } from './academyAuth'
 export type { Credentials } from './academyAuth'
 export { ApiError } from '../remote/client'
-export { academyEnabled } from '../remote/config'

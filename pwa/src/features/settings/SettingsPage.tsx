@@ -5,7 +5,6 @@ import { useCatalog } from '@/catalog/useCatalog'
 import { repos } from '@/data'
 import { exportBackup, importBackup, parseBackup } from '@/data/backup'
 import { useSettings } from '@/data/hooks'
-import { academyEnabled } from '@/data/sync'
 import type { Settings, ThemePreference } from '@/domain/types'
 import { formatClock } from '@/domain/duration'
 import { formatNumber, fromDisplayUnit, toDisplayUnit, UNIT_LABEL } from '@/domain/units'
@@ -213,11 +212,9 @@ export function SettingsPage() {
     <>
       <PageHeader title="Ajustes" />
       <div className="px-4 pb-8">
-        {academyEnabled && (
-          <Section title="Minha academia">
-            <AcademySettings />
-          </Section>
-        )}
+        <Section title="Minha academia">
+          <AcademySettings />
+        </Section>
 
         <Section title="Aparência">
           <SegmentedControl<ThemePreference>

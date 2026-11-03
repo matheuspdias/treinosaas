@@ -2,7 +2,7 @@
 import { z } from 'zod'
 import { ApiError, apiRequest } from './client'
 
-vi.mock('./config', () => ({ API_URL: 'http://api.test/api', academyEnabled: true }))
+vi.mock('./config', () => ({ API_URL: 'http://api.test/api' }))
 
 function reply(status: number, body: unknown) {
   vi.stubGlobal(
@@ -52,6 +52,16 @@ describe('apiRequest', () => {
     reply(401, { code: 'inactive', message: 'Acesso encerrado.' })
     const error = await errorOf(apiRequest('/x'))
     expect(error).toMatchObject({ kind: 'auth', code: 'inactive', message: 'Acesso encerrado.' })
+  })
+
+  it('identifica academia suspensa (403 com código)', async () => {
+    reply(403, { code: 'academy_suspended', message: 'Fale com a academia.' })
+    const error = await errorOf(apiRequest('/x'))
+    expect(error).toMatchObject({
+      kind: 'blocked',
+      code: 'academy_suspended',
+      message: 'Fale com a academia.',
+    })
   })
 
   it('trata limite de tentativas, erro do servidor e resposta inesperada', async () => {

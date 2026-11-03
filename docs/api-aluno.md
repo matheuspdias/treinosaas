@@ -5,7 +5,10 @@ Autenticação: `Authorization: Bearer <token>` (token do aparelho, Sanctum). CO
 
 Erros de validação: `422 { message, errors: { campo: [mensagem] } }` (mensagens em pt-BR, prontas para exibir).
 Sessão inválida: `401 { code: 'unauthenticated' | 'inactive', message }`. Em `inactive` o aluno foi inativado
-(ou a academia desativada): o app encerra o modo academia e **mantém** os dados locais.
+(ou a academia desativada): o app volta para a tela de entrada e **mantém** os dados locais.
+Academia suspensa (pagamento): `403 { code: 'academy_suspended', message }` em todas as rotas autenticadas, menos
+`/auth/logout`. O token **continua válido**: o app mostra a tela de bloqueio (guardada para valer offline) e volta
+sozinho quando a academia é reativada.
 Limite de requisições: `429`.
 
 ## Login
@@ -19,7 +22,8 @@ Limite de requisições: `429`.
 | PUT | `/pin` | `{ currentPin, pin }` | `200` |
 
 - `next`: `login` (já tem PIN) · `first_access` (pode criar o PIN agora) · `blocked` (prazo do primeiro acesso
-  acabou: falar com a academia) · `not_found` · `choose_academy` (mesmo celular em mais de uma academia; `academies`
+  acabou: falar com a academia) · `suspended` (academia suspensa) · `inactive` (aluno inativado) · `not_found` ·
+  `choose_academy` (mesmo celular em mais de uma academia; `academies`
   traz `[{ id, name, next }]` e o app envia `academyId` depois).
 - PIN: 4 a 6 dígitos; no primeiro acesso recusa sequências e repetidos (`1234`, `1111`).
 - 5 PINs errados bloqueiam o aluno por 15 min (mensagem no erro de `pin`).

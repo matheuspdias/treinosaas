@@ -1,5 +1,5 @@
 import { isActivePlan, nextPlanInSequence, sortByOrder } from './sequence'
-import type { ID, Plan, Session } from './types'
+import type { AcademyFeed, AcademySession, ID, Plan, Session } from './types'
 
 /** Ficha recebida da academia: o aluno só treina com ela, não edita. */
 export function isAcademyPlan(plan: Pick<Plan, 'origin'>): boolean {
@@ -92,4 +92,32 @@ export function pinProblem(pin: string): string | null {
   if (new Set(pin).size === 1) return 'Evite números repetidos.'
   if ('0123456789'.includes(pin) || '9876543210'.includes(pin)) return 'Evite números em sequência.'
   return null
+}
+
+// ---------------------------------------------------------------------------
+// Acesso
+// ---------------------------------------------------------------------------
+
+/** Dias que o app funciona sem conseguir confirmar o acesso com a academia. */
+export const OFFLINE_GRACE_DAYS = 7
+
+export type AccessState = 'login' | 'blocked' | 'needs_connection' | 'ok'
+
+/**
+ * O app só funciona com aluno logado numa academia em dia. Offline, vale o último estado
+ * conhecido por até OFFLINE_GRACE_DAYS; depois disso precisa de internet para confirmar.
+ */
+export function accessState(
+  session: AcademySession | null,
+  feed: Pick<AcademyFeed, 'blocked' | 'lastSyncAt'>,
+  now = Date.now(),
+): AccessState {
+  if (!session) return 'login'
+  if (feed.blocked) return 'blocked'
+  const lastConfirmed = Math.max(
+    Date.parse(session.loggedInAt),
+    feed.lastSyncAt ? Date.parse(feed.lastSyncAt) : 0,
+  )
+  if (now - lastConfirmed > OFFLINE_GRACE_DAYS * 86_400_000) return 'needs_connection'
+  return 'ok'
 }

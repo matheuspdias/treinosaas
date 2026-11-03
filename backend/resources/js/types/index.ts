@@ -15,6 +15,8 @@ export type Ability =
 export interface CurrentAcademy {
   id: string
   name: string
+  /** Pagamento em atraso: os alunos ficam bloqueados no app até reativar. */
+  suspended: boolean
   role: Role | null
   roleLabel: string | null
   abilities: Ability[]

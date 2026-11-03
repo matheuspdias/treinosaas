@@ -1,4 +1,5 @@
 import {
+  accessState,
   activeAcademyPrograms,
   formatPhoneInput,
   isAcademyPlan,
@@ -8,7 +9,7 @@ import {
   phoneDigits,
   pinProblem,
 } from './academy'
-import type { Plan, Session } from './types'
+import type { AcademySession, Plan, Session } from './types'
 
 const plan = (id: string, order: number, extra: Partial<Plan> = {}): Plan => ({
   id,
@@ -107,5 +108,35 @@ describe('pinProblem', () => {
     expect(pinProblem('654321')).not.toBeNull()
     expect(pinProblem('12a4')).not.toBeNull()
     expect(pinProblem('2580')).toBeNull()
+  })
+})
+
+describe('accessState', () => {
+  const session: AcademySession = {
+    token: 't',
+    expiresAt: null,
+    student: { id: 's', name: 'Ana', phoneMasked: null },
+    academy: { id: 'a', name: 'Academia' },
+    loggedInAt: '2026-11-01T00:00:00.000Z',
+  }
+  const day = 86_400_000
+  const loggedIn = Date.parse(session.loggedInAt)
+
+  it('sem sessão pede login (não existe uso sem academia)', () => {
+    expect(accessState(null, { blocked: null, lastSyncAt: null })).toBe('login')
+  })
+
+  it('bloqueio do servidor vale mesmo offline', () => {
+    const blocked = { code: 'academy_suspended', message: 'x' }
+    expect(accessState(session, { blocked, lastSyncAt: null }, loggedIn)).toBe('blocked')
+  })
+
+  it('funciona offline por 7 dias desde a última confirmação', () => {
+    const feed = { blocked: null, lastSyncAt: '2026-11-05T00:00:00.000Z' }
+    expect(accessState(session, feed, loggedIn + 10 * day)).toBe('ok')
+    expect(accessState(session, feed, loggedIn + 12 * day)).toBe('needs_connection')
+    expect(accessState(session, { blocked: null, lastSyncAt: null }, loggedIn + 8 * day)).toBe(
+      'needs_connection',
+    )
   })
 })

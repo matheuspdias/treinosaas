@@ -4,7 +4,7 @@ TreinoApp para academias: o app de treinos do aluno (PWA offline) + painel da ac
 
 ```
 backend/   Laravel 13 (controller → service → repository) + painel Inertia/React + API do aluno (Sanctum)
-pwa/       app do aluno (Vite/React, offline-first, IndexedDB). Sem VITE_API_URL funciona exatamente como o treinoapp
+pwa/       app do aluno (Vite/React, offline-first, IndexedDB). Só funciona com login numa academia (precisa de VITE_API_URL)
 docker/    php-fpm 8.4, nginx, postgres 16, redis
 docs/      contrato da API do aluno (api-aluno.md) e deploy (deploy.md)
 ```
@@ -27,12 +27,21 @@ make pwa-dev                                # app do aluno em http://localhost:5
 | App do aluno | http://localhost:5174 | Ana Souza `(11) 98765-4321` (primeiro acesso liberado: cria o PIN) |
 | Postgres / Redis | `localhost:5433` / `localhost:6380` | treinosaas / secret |
 
-Qualidade: `make test` (backend, 99 testes) · `make pwa-check` (PWA, 187 testes) · painel: `docker compose run --rm node sh -c "cd backend && npm run lint && npm run typecheck"`.
+Qualidade: `make test` (backend, 104 testes) · `make pwa-check` (PWA, 192 testes) · painel: `docker compose run --rm node sh -c "cd backend && npm run lint && npm run typecheck"`.
 
 Academia nova (não existe cadastro público):
 
 ```bash
 make artisan c='academy:create "Academia Força Total" --owner-email=dono@forca.com --owner-name="Fulano"'
+```
+
+Academia sem pagar: suspender bloqueia os alunos no app ("Fale com o dono ou a recepção da academia"). O painel
+continua acessível, com um aviso. Ao reativar, os alunos voltam a usar o app sem entrar de novo.
+
+```bash
+make artisan c='academy:list'
+make artisan c='academy:suspend academia-demo --reason="mensalidade de outubro"'   # motivo é interno
+make artisan c='academy:reactivate academia-demo'
 ```
 
 ## Como testar cada fluxo
@@ -57,7 +66,8 @@ make artisan c='academy:create "Academia Força Total" --owner-email=dono@forca.
 avaliações e vê o histórico. Não cadastra/inativa alunos nem publica avisos (menu e servidor bloqueiam: 403).
 
 **Aluno (PWA)**
-1. Ajustes → Minha academia → Entrar com minha academia → `(11) 98765-4321`.
+1. Abra o app: a única tela é "Entrar" (não existe uso sem academia). Informe `(11) 98765-4321`.
+   Um celular não cadastrado mostra "Celular não encontrado: peça para a recepção fazer seu cadastro".
 2. Primeiro acesso: crie o PIN (1234/1111 são recusados) e aceite o aviso de privacidade. Depois disso o aparelho
    fica conectado (token de 180 dias renovado a cada uso). PIN errado 5× bloqueia por 15 min.
 3. Fichas: seção "Treino da academia" (programa, instrutor, validade), só leitura, com as observações do professor.
@@ -66,8 +76,12 @@ avaliações e vê o histórico. Não cadastra/inativa alunos nem publica avisos
 5. Faça e finalize um treino de ficha da academia → aparece no painel (cargas, frequência, último treino).
    Offline (modo avião) o treino fica na fila e é enviado sozinho quando a internet volta.
 6. Progresso → Peso e medidas: "Avaliações da academia".
-7. No painel, inative a Ana: o app sai do modo academia, mantém o histórico e as fichas próprias.
-8. Sem `VITE_API_URL`: nenhuma menção a academia. É o treinoapp de sempre.
+7. Suspenda a academia (`academy:suspend academia-demo`) e reabra o app: tela "Acesso suspenso", que continua
+   mesmo offline. Treinos feitos antes ficam na fila. `academy:reactivate` + "Tentar de novo" libera tudo.
+8. Sem internet o app funciona por até 7 dias desde a última confirmação com a academia; depois pede conexão.
+9. No painel, inative a Ana: o app volta para a tela de entrada ("Cadastro inativo"), o histórico fica no aparelho.
+10. Ajustes → Minha academia → "Sair ou trocar de academia": volta para a tela de entrada (outra academia, mesmo
+    celular, aparece a escolha da academia).
 
 ## Multi-tenant e segurança
 

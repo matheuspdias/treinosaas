@@ -71,6 +71,11 @@ export function useAcademyFeed(): AcademyFeed {
   return useLiveQuery(() => repos.academy.getFeed(), []) ?? EMPTY_ACADEMY_FEED
 }
 
+/** Igual a useAcademyFeed, mas `undefined` enquanto carrega (para decidir o acesso sem piscar). */
+export function useAcademyFeedState(): AcademyFeed | undefined {
+  return useLiveQuery(() => repos.academy.getFeed(), [])
+}
+
 /** Treinos e marcações esperando internet para ir para a academia. */
 export function useOutboxCount(): number {
   return useLiveQuery(() => repos.outbox.count(), []) ?? 0

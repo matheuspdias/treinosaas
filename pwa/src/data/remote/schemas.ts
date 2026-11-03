@@ -19,6 +19,8 @@ export const lookupNext = z.enum([
   'login',
   'first_access',
   'blocked',
+  'suspended',
+  'inactive',
   'not_found',
   'choose_academy',
 ])
@@ -30,7 +32,7 @@ export const lookupResponseSchema = z.object({
     z.object({
       id: z.string(),
       name: z.string(),
-      next: z.enum(['login', 'first_access', 'blocked']),
+      next: z.enum(['login', 'first_access', 'blocked', 'suspended', 'inactive']),
     }),
   ),
 })

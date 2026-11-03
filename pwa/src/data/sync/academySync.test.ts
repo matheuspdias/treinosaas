@@ -12,7 +12,7 @@ import {
   syncNow,
 } from './academySync'
 
-vi.mock('../remote/config', () => ({ API_URL: 'http://api.test/api', academyEnabled: true }))
+vi.mock('../remote/config', () => ({ API_URL: 'http://api.test/api' }))
 
 const AUTH: AcademySession = {
   token: 'tok',
@@ -225,6 +225,42 @@ describe('fim da sessão', () => {
     expect(plans.find((p) => p.id === own.id)!.archivedAt).toBeUndefined()
     expect(await repos.sessions.listCompleted()).toHaveLength(1)
     expect((await repos.academy.getFeed()).lastError).toMatch(/encerrado/)
+  })
+
+  it('academia suspensa: bloqueia sem sair, mantém a fila e libera na reativação', async () => {
+    await repos.academy.saveSession(AUTH)
+    await repos.plans.saveMany([academyPlan('ap')])
+    await repos.sessions.save(
+      session('2026-11-01T10:00:00.000Z', [sessionExercise('Barbell_Squat', [set(10, 50)])], {
+        planId: 'ap',
+      }),
+    )
+    mockApi(() => ({
+      status: 403,
+      body: { code: 'academy_suspended', message: 'Acesso suspenso. Fale com a academia.' },
+    }))
+    await enqueueWorkout((await repos.sessions.listCompleted())[0]!)
+    await syncNow()
+
+    expect(await repos.academy.getSession()).toEqual(AUTH)
+    expect((await repos.academy.getFeed()).blocked).toEqual({
+      code: 'academy_suspended',
+      message: 'Acesso suspenso. Fale com a academia.',
+    })
+    expect(await repos.outbox.count()).toBe(1)
+    expect((await repos.plans.get('ap'))!.archivedAt).toBeUndefined()
+
+    mockApi((url, init) =>
+      url.endsWith('/workouts')
+        ? {
+            status: 200,
+            body: { accepted: [JSON.parse(init.body as string).sessions[0].id], rejected: [] },
+          }
+        : emptyFeed(url, init),
+    )
+    await syncNow()
+    expect((await repos.academy.getFeed()).blocked).toBeNull()
+    expect(await repos.outbox.count()).toBe(0)
   })
 
   it('token expirado mantém a fila para depois do novo login', async () => {

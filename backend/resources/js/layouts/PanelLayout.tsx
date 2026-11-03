@@ -5,6 +5,7 @@ import {
   LogOut,
   Megaphone,
   Settings,
+  TriangleAlert,
   Users,
   type LucideIcon,
 } from 'lucide-react'
@@ -143,6 +144,19 @@ export function PanelLayout({ title, children, width = 'wide' }: PanelLayoutProp
 
       <main id="conteudo" className="pb-[calc(env(safe-area-inset-bottom)+5.5rem)] lg:pb-12">
         <div className={cn('mx-auto', width === 'narrow' ? 'max-w-2xl' : 'max-w-5xl')}>
+          {props.academy?.suspended && (
+            <div
+              role="alert"
+              className="m-4 flex gap-3 rounded-card bg-warning-soft p-4 lg:mx-8 lg:mt-6"
+            >
+              <TriangleAlert className="size-5 shrink-0 text-warning" aria-hidden />
+              <p className="text-sm">
+                <strong className="font-bold">Acesso dos alunos suspenso.</strong> O painel continua
+                funcionando, mas os alunos não conseguem usar o app até a assinatura ser
+                regularizada. Fale com o suporte.
+              </p>
+            </div>
+          )}
           {children}
         </div>
       </main>

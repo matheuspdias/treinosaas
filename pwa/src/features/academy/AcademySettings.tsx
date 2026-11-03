@@ -1,16 +1,14 @@
-import { Building2, LogIn, RefreshCw } from 'lucide-react'
+import { Building2, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router'
 import { useAcademyFeed, useAcademySession, useOutboxCount } from '@/data/hooks'
 import { logoutAcademy, syncNow } from '@/data/sync'
 import { confirm } from '@/stores/confirmStore'
 import { toast } from '@/stores/toastStore'
 import { Button } from '@/ui/components/Button'
-import { buttonClass } from '@/ui/components/buttonClass'
 import { ChangePinSheet } from './ChangePinSheet'
 import { formatTime } from './strings'
 
-/** Conteúdo da seção "Minha academia" dos Ajustes. Some quando o app não tem API configurada. */
+/** Conteúdo da seção "Minha academia" dos Ajustes. */
 export function AcademySettings() {
   const session = useAcademySession()
   const feed = useAcademyFeed()
@@ -18,23 +16,8 @@ export function AcademySettings() {
   const [pinOpen, setPinOpen] = useState(false)
   const [syncing, setSyncing] = useState(false)
 
-  if (session === undefined) return null
-
-  if (!session) {
-    return (
-      <div className="space-y-3">
-        {feed.lastError && <p className="text-warning">{feed.lastError}</p>}
-        <p className="text-fg-muted">
-          Treina numa academia que usa o app? Entre com o celular cadastrado para receber seus
-          treinos. Suas fichas pessoais continuam aqui.
-        </p>
-        <Link to="/academia/entrar" className={buttonClass({ block: true })}>
-          <LogIn className="size-5" />
-          Entrar com minha academia
-        </Link>
-      </div>
-    )
-  }
+  // Sem sessão o app inteiro fica na tela de entrada (AccessGate).
+  if (!session) return null
 
   const sync = async () => {
     setSyncing(true)
@@ -47,8 +30,8 @@ export function AcademySettings() {
       title: 'Sair da academia?',
       description:
         pending > 0
-          ? `${pending === 1 ? '1 item ainda não foi enviado' : `${pending} itens ainda não foram enviados`} para a academia e vai se perder. Seus treinos continuam no aparelho, e as fichas da academia ficam arquivadas.`
-          : 'Seus treinos continuam no aparelho. As fichas da academia ficam arquivadas e você para de receber treinos novos.',
+          ? `${pending === 1 ? '1 item ainda não foi enviado' : `${pending} itens ainda não foram enviados`} para a academia e vai se perder. Para usar o app de novo, entre com seu celular e PIN.`
+          : 'Para usar o app de novo (nesta ou em outra academia), entre com seu celular e PIN. Seu histórico continua no aparelho.',
       confirmLabel: 'Sair',
       tone: 'danger',
     })
@@ -99,7 +82,7 @@ export function AcademySettings() {
           Trocar PIN
         </Button>
         <Button variant="danger" block onClick={() => void leave()}>
-          Sair da academia
+          Sair ou trocar de academia
         </Button>
       </div>
       <ChangePinSheet open={pinOpen} onClose={() => setPinOpen(false)} />

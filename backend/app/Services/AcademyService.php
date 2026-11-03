@@ -33,6 +33,24 @@ class AcademyService
         $this->academies->addMember($academy, $user, $role);
     }
 
+    /** Bloqueia o acesso dos alunos (ex.: mensalidade em atraso). As sessões ficam guardadas para a reativação. */
+    public function suspend(Academy $academy, ?string $reason = null): Academy
+    {
+        $academy->forceFill([
+            'suspended_at' => $academy->suspended_at ?? now(),
+            'suspension_reason' => $reason,
+        ]);
+
+        return $this->academies->save($academy);
+    }
+
+    public function reactivate(Academy $academy): Academy
+    {
+        $academy->forceFill(['suspended_at' => null, 'suspension_reason' => null]);
+
+        return $this->academies->save($academy);
+    }
+
     private function uniqueSlug(string $name): string
     {
         $base = Str::slug($name) ?: 'academia';

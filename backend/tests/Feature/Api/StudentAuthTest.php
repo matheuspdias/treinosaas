@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\Academy;
 use App\Models\Student;
+use App\Services\AcademyService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -120,6 +121,55 @@ class StudentAuthTest extends TestCase
         $student->forceFill(['status' => 'active'])->saveQuietly();
         $this->academy->forceFill(['deactivated_at' => now()])->save();
         $this->postJson('/api/student/auth/lookup', ['phone' => '11987654321'])->assertJson(['next' => 'not_found']);
+    }
+
+    public function test_aluno_inativo_ve_o_motivo_em_vez_de_nao_encontrado(): void
+    {
+        $student = $this->withPin();
+        $student->forceFill(['status' => 'inactive'])->saveQuietly();
+
+        $this->postJson('/api/student/auth/lookup', ['phone' => '11987654321'])->assertJson(['next' => 'inactive']);
+        $this->postJson('/api/student/auth/login', ['phone' => '11987654321', 'pin' => '2580'])
+            ->assertJsonValidationErrors(['phone' => 'Seu cadastro está inativo. Fale com a academia.']);
+    }
+
+    public function test_academia_suspensa_bloqueia_o_aluno_e_libera_ao_reativar(): void
+    {
+        $student = $this->withPin();
+        $token = $student->createToken('celular', ['student'])->plainTextToken;
+        app(AcademyService::class)->suspend($this->academy, 'boleto de outubro');
+
+        $this->postJson('/api/student/auth/lookup', ['phone' => '11987654321'])->assertJson(['next' => 'suspended']);
+        $this->postJson('/api/student/auth/login', ['phone' => '11987654321', 'pin' => '2580'])
+            ->assertJsonValidationErrors('phone')
+            ->assertJsonPath('errors.phone.0', fn (string $m) => str_contains($m, 'suspenso'));
+
+        $this->withToken($token)->getJson('/api/student/programs')
+            ->assertForbidden()
+            ->assertJson(['code' => 'academy_suspended'])
+            ->assertJsonMissing(['boleto de outubro']);
+        $this->withToken($token)->postJson('/api/student/workouts', ['sessions' => []])->assertForbidden();
+        $this->assertSame(1, $student->tokens()->count(), 'a sessão fica guardada para a reativação');
+
+        $other = $student->createToken('outro', ['student'])->plainTextToken;
+        $this->app['auth']->forgetGuards();
+        $this->withToken($other)->postJson('/api/student/auth/logout')->assertNoContent();
+        $this->app['auth']->forgetGuards();
+
+        app(AcademyService::class)->reactivate($this->academy->fresh());
+        $this->app['auth']->forgetGuards();
+
+        $this->withToken($token)->getJson('/api/student/me')->assertOk();
+    }
+
+    public function test_academia_suspensa_nao_afeta_alunos_de_outra_academia(): void
+    {
+        $other = Academy::factory()->create();
+        $student = $this->student($other, ['phone' => '21987654321']);
+        $token = $student->createToken('celular', ['student'])->plainTextToken;
+        app(AcademyService::class)->suspend($this->academy);
+
+        $this->withToken($token)->getJson('/api/student/me')->assertOk();
     }
 
     public function test_mesmo_celular_em_duas_academias_pede_para_escolher(): void

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Student;
+use App\Services\StudentAuth\StudentAuthService;
 use App\Tenancy\TenantContext;
 use Closure;
 use Illuminate\Http\Request;
@@ -28,7 +29,13 @@ class AuthenticateStudent
         if (! $student->isActive() || ! $student->academy->isActive()) {
             $student->currentAccessToken()->delete();
 
-            return $this->reject('inactive', 'Seu acesso pela academia foi encerrado. Seus treinos continuam no aparelho.');
+            return $this->reject('inactive', 'Seu acesso pela academia foi encerrado. Fale com a academia.');
+        }
+
+        // Suspensa: a sessão fica guardada, e o aluno volta a usar o app assim que a academia for reativada.
+        // Sair continua liberado (trocar de academia no mesmo aparelho).
+        if ($student->academy->isSuspended() && ! $request->routeIs('api.student.logout')) {
+            return $this->reject('academy_suspended', StudentAuthService::suspendedMessage($student->academy), Response::HTTP_FORBIDDEN);
         }
 
         $this->context->set($student->academy);
@@ -52,8 +59,8 @@ class AuthenticateStudent
         }
     }
 
-    private function reject(string $code, string $message): Response
+    private function reject(string $code, string $message, int $status = Response::HTTP_UNAUTHORIZED): Response
     {
-        return response()->json(['code' => $code, 'message' => $message], Response::HTTP_UNAUTHORIZED);
+        return response()->json(['code' => $code, 'message' => $message], $status);
     }
 }

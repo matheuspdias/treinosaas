@@ -1,9 +1,10 @@
 import { Building2, ChevronRight, KeyRound, Phone } from 'lucide-react'
 import { useId, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Navigate, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { repos } from '@/data'
-import { ApiError, academyEnabled, createPinAndLogin, loginWithPin, lookupPhone } from '@/data/sync'
+import { useAcademyFeed } from '@/data/hooks'
+import { ApiError, createPinAndLogin, loginWithPin, lookupPhone } from '@/data/sync'
 import { formatPhoneInput, isCompletePhone, pinProblem } from '@/domain/academy'
 import { toast } from '@/stores/toastStore'
 import { Button } from '@/ui/components/Button'
@@ -12,14 +13,43 @@ import { TextField } from '@/ui/components/Field'
 import { PageHeader } from '@/ui/components/PageHeader'
 import { PRIVACY_TEXT } from './strings'
 
-type Step = 'phone' | 'choose' | 'pin' | 'create' | 'blocked' | 'not_found'
-type Choice = { id: string; name: string; next: 'login' | 'first_access' | 'blocked' }
+type Step = 'phone' | 'choose' | 'pin' | 'create' | DeadEnd
+type DeadEnd = 'blocked' | 'suspended' | 'inactive' | 'not_found'
+type Choice = {
+  id: string
+  name: string
+  next: 'login' | 'first_access' | 'blocked' | 'suspended' | 'inactive'
+}
 
 const STEP_OF: Record<Choice['next'], Step> = {
   login: 'pin',
   first_access: 'create',
   blocked: 'blocked',
+  suspended: 'suspended',
+  inactive: 'inactive',
 }
+
+/** Telas sem saída: só dá para explicar e tentar outro número. */
+const DEAD_ENDS: Record<DeadEnd, { title: string; text: string }> = {
+  blocked: {
+    title: 'O prazo do primeiro acesso acabou',
+    text: 'Por segurança, o PIN só pode ser criado logo depois do cadastro. Peça na recepção para liberar seu acesso e tente de novo.',
+  },
+  suspended: {
+    title: 'Acesso da academia suspenso',
+    text: 'O acesso dos alunos desta academia está suspenso no momento. Fale com o dono ou a recepção da academia.',
+  },
+  inactive: {
+    title: 'Cadastro inativo',
+    text: 'Seu cadastro nesta academia está inativo. Fale com a recepção para reativar.',
+  },
+  not_found: {
+    title: 'Celular não encontrado',
+    text: 'Confira o número. O app é liberado pela sua academia: peça para a recepção fazer seu cadastro.',
+  },
+}
+
+const isDeadEnd = (step: Step): step is DeadEnd => step in DEAD_ENDS
 
 const pinInputProps = {
   type: 'password',
@@ -32,6 +62,7 @@ const pinInputProps = {
 /** Entrar com o celular cadastrado pela academia + PIN (criado no primeiro acesso). */
 export function AcademyLoginPage() {
   const navigate = useNavigate()
+  const feed = useAcademyFeed()
   const privacyId = useId()
   const [step, setStep] = useState<Step>('phone')
   const [phone, setPhone] = useState('')
@@ -42,8 +73,6 @@ export function AcademyLoginPage() {
   const [privacy, setPrivacy] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
-
-  if (!academyEnabled) return <Navigate to="/" replace />
 
   const fail = (error: unknown) => {
     if (error instanceof ApiError) {
@@ -123,8 +152,13 @@ export function AcademyLoginPage() {
 
   return (
     <div className="min-h-dvh pb-8 safe-bottom">
-      <PageHeader back={step === 'phone' ? true : undefined} title="Entrar com minha academia" />
+      <PageHeader title="Entrar" />
       <div className="px-4">
+        {step === 'phone' && feed.lastError && !errors.form && (
+          <p role="status" className="mb-4 rounded-control bg-warning-soft px-4 py-3">
+            {feed.lastError}
+          </p>
+        )}
         {errors.form && (
           <p role="alert" className="mb-4 rounded-control bg-danger-soft px-4 py-3 text-danger">
             {errors.form}
@@ -134,8 +168,7 @@ export function AcademyLoginPage() {
         {step === 'phone' && (
           <form onSubmit={submitPhone} className="space-y-5" noValidate>
             <p className="text-fg-muted">
-              Use o celular que você informou na academia. Suas fichas pessoais continuam no
-              aparelho.
+              O app é liberado pela sua academia. Entre com o celular que você informou na recepção.
             </p>
             <TextField
               label="Celular com DDD"
@@ -258,19 +291,11 @@ export function AcademyLoginPage() {
           </form>
         )}
 
-        {(step === 'blocked' || step === 'not_found') && (
+        {isDeadEnd(step) && (
           <div className="space-y-5">
-            <Card className="p-5">
-              <p className="text-lg font-bold">
-                {step === 'blocked'
-                  ? 'O prazo do primeiro acesso acabou'
-                  : 'Celular não encontrado'}
-              </p>
-              <p className="mt-1 text-fg-muted">
-                {step === 'blocked'
-                  ? 'Por segurança, o PIN só pode ser criado logo depois do cadastro. Peça na recepção para liberar seu acesso e tente de novo.'
-                  : 'Confira o número ou peça para a academia conferir seu cadastro.'}
-              </p>
+            <Card className="p-5" role="alert">
+              <p className="text-lg font-bold">{DEAD_ENDS[step].title}</p>
+              <p className="mt-1 text-fg-muted">{DEAD_ENDS[step].text}</p>
             </Card>
             <Button variant="secondary" size="lg" block onClick={restart}>
               Tentar outro número
@@ -278,7 +303,7 @@ export function AcademyLoginPage() {
           </div>
         )}
 
-        {step !== 'phone' && step !== 'blocked' && step !== 'not_found' && (
+        {step !== 'phone' && !isDeadEnd(step) && (
           <button
             type="button"
             onClick={restart}

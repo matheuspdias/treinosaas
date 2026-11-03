@@ -2,7 +2,6 @@ import { academyPlans, isAcademyPlan } from '@/domain/academy'
 import type { AcademySession, ID, Session } from '@/domain/types'
 import { repos } from '../index'
 import { ApiError, apiRequest } from '../remote/client'
-import { academyEnabled } from '../remote/config'
 import {
   archiveAllAcademyPlans,
   programsToPlans,
@@ -30,7 +29,7 @@ const nowIso = () => new Date().toISOString()
 export type EndReason = 'logout' | 'inactive' | 'unauthenticated'
 
 const END_MESSAGES: Record<Exclude<EndReason, 'logout'>, string> = {
-  inactive: 'Seu acesso pela academia foi encerrado. Seus treinos continuam no aparelho.',
+  inactive: 'Seu acesso pela academia foi encerrado. Fale com a academia.',
   unauthenticated: 'Sua sessão da academia expirou. Entre de novo para receber seus treinos.',
 }
 
@@ -78,7 +77,6 @@ let running: Promise<void> | null = null
 
 /** Envia a fila e busca os treinos. Chamadas simultâneas compartilham a mesma execução. */
 export function syncNow(): Promise<void> {
-  if (!academyEnabled) return Promise.resolve()
   running ??= run().finally(() => {
     running = null
   })
@@ -91,8 +89,16 @@ async function run(): Promise<void> {
   try {
     await pushOutbox(auth)
     await pullAll(auth)
-    await repos.academy.updateFeed({ lastSyncAt: nowIso(), lastError: null })
+    await repos.academy.updateFeed({ lastSyncAt: nowIso(), lastError: null, blocked: null })
   } catch (error) {
+    if (error instanceof ApiError && error.kind === 'blocked') {
+      // Fica guardado: o app continua bloqueado offline até a academia ser reativada.
+      await repos.academy.updateFeed({
+        blocked: { code: error.code ?? 'blocked', message: error.message },
+        lastError: null,
+      })
+      return
+    }
     if (error instanceof ApiError && error.kind === 'auth') {
       await endAcademySession(error.code === 'inactive' ? 'inactive' : 'unauthenticated')
       return
@@ -135,7 +141,7 @@ export async function pushOutbox(auth: AcademySession, now = Date.now()): Promis
       })
       await repos.outbox.remove([item.id])
     } catch (error) {
-      if (item.attempts + 1 >= MAX_SEEN_ATTEMPTS && !isAuth(error)) {
+      if (item.attempts + 1 >= MAX_SEEN_ATTEMPTS && !stopsSync(error)) {
         await repos.outbox.remove([item.id])
       } else {
         await retryLater([item], error, now)
@@ -144,12 +150,13 @@ export async function pushOutbox(auth: AcademySession, now = Date.now()): Promis
   }
 }
 
-function isAuth(error: unknown): boolean {
-  return error instanceof ApiError && error.kind === 'auth'
+/** Sessão encerrada ou acesso bloqueado: para tudo e mantém a fila. */
+function stopsSync(error: unknown): boolean {
+  return error instanceof ApiError && (error.kind === 'auth' || error.kind === 'blocked')
 }
 
 async function retryLater(items: OutboxItem[], error: unknown, now: number): Promise<void> {
-  if (isAuth(error)) throw error
+  if (stopsSync(error)) throw error
   for (const item of items) {
     const attempts = item.attempts + 1
     await repos.outbox.put({
@@ -203,6 +210,7 @@ export async function endAcademySession(reason: EndReason): Promise<void> {
     notices: [],
     assessments: [],
     lastError: reason === 'logout' ? null : END_MESSAGES[reason],
+    blocked: null,
   })
 }
 
@@ -211,7 +219,6 @@ const INTERVAL_MS = 10 * 60_000
 
 /** Gatilhos de sincronização: abertura do app, volta da internet, volta para o app e a cada 10 min. */
 export function startAcademySync(): () => void {
-  if (!academyEnabled) return () => {}
   let lastVisible = Date.now()
   const onOnline = () => void syncNow()
   const onVisible = () => {

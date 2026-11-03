@@ -2,6 +2,7 @@
 
 namespace App\Services\StudentAuth;
 
+use App\Models\Academy;
 use App\Models\Student;
 use App\Repositories\Contracts\StudentRepository;
 use App\Support\PhoneNumber;
@@ -23,6 +24,10 @@ class StudentAuthService
     public const NEXT_BLOCKED = 'blocked';
 
     public const NEXT_NOT_FOUND = 'not_found';
+
+    public const NEXT_SUSPENDED = 'suspended';
+
+    public const NEXT_INACTIVE = 'inactive';
 
     public function __construct(
         private readonly StudentRepository $students,
@@ -56,6 +61,7 @@ class StudentAuthService
     public function firstAccess(string $phone, ?string $academyId, string $pin, string $device): NewAccessToken
     {
         $student = $this->pick($phone, $academyId);
+        $this->ensureCanEnter($student);
 
         if (! $student->canCreatePin()) {
             throw ValidationException::withMessages([
@@ -81,6 +87,7 @@ class StudentAuthService
     public function login(string $phone, ?string $academyId, string $pin, string $device): NewAccessToken
     {
         $student = $this->pick($phone, $academyId);
+        $this->ensureCanEnter($student);
 
         if ($student->isLocked()) {
             throw ValidationException::withMessages([
@@ -114,6 +121,24 @@ class StudentAuthService
         $this->students->save($student);
     }
 
+    public static function suspendedMessage(Academy $academy): string
+    {
+        return "O acesso dos alunos da {$academy->name} está suspenso. Fale com o dono ou a recepção da academia.";
+    }
+
+    private function ensureCanEnter(Student $student): void
+    {
+        $message = match (true) {
+            $student->academy->isSuspended() => self::suspendedMessage($student->academy),
+            ! $student->isActive() => 'Seu cadastro está inativo. Fale com a academia.',
+            default => null,
+        };
+
+        if ($message !== null) {
+            throw ValidationException::withMessages(['phone' => $message]);
+        }
+    }
+
     private function issueToken(Student $student, string $device): NewAccessToken
     {
         return $student->createToken(
@@ -142,13 +167,20 @@ class StudentAuthService
     private function nextStep(Student $student): string
     {
         return match (true) {
+            $student->academy->isSuspended() => self::NEXT_SUSPENDED,
+            ! $student->isActive() => self::NEXT_INACTIVE,
             $student->hasPin() => self::NEXT_LOGIN,
             $student->canCreatePin() => self::NEXT_FIRST_ACCESS,
             default => self::NEXT_BLOCKED,
         };
     }
 
-    /** @return Collection<int, Student> alunos ativos com esse telefone, em academias ativas */
+    /**
+     * Alunos com esse telefone em academias que existem (inclui suspensas e alunos inativos,
+     * para o app explicar o bloqueio em vez de dizer "não encontrado").
+     *
+     * @return Collection<int, Student>
+     */
     private function candidates(string $phone): Collection
     {
         $parsed = PhoneNumber::tryParse($phone);
@@ -158,7 +190,7 @@ class StudentAuthService
         }
 
         return $this->students->findInAnyAcademyByPhone($parsed)
-            ->filter(fn (Student $s) => $s->isActive() && $s->academy->isActive())
+            ->filter(fn (Student $s) => $s->academy->isActive())
             ->values();
     }
 

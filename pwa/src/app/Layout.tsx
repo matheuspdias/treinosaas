@@ -1,6 +1,16 @@
 import { ChartNoAxesColumnIncreasing, ClipboardList, Dumbbell, House, Settings } from 'lucide-react'
 import { Suspense } from 'react'
-import { NavLink, Outlet, ScrollRestoration, useLocation, useNavigation } from 'react-router'
+import {
+  Navigate,
+  NavLink,
+  Outlet,
+  ScrollRestoration,
+  useLocation,
+  useNavigation,
+} from 'react-router'
+import { useAcademyFeedState, useAcademySession } from '@/data/hooks'
+import { accessState } from '@/domain/academy'
+import { AccessBlockedScreen } from '@/features/academy/AccessBlockedScreen'
 import { cn } from '@/ui/cn'
 import { PageSpinner } from '@/ui/components/Spinner'
 import { ActiveWorkoutBar } from './ActiveWorkoutBar'
@@ -22,10 +32,39 @@ const FULLSCREEN = [
   /^\/academia\/entrar/,
 ]
 
+const LOGIN_PATH = '/academia/entrar'
+
 export function Layout() {
   const { pathname } = useLocation()
   const navigation = useNavigation()
+  const session = useAcademySession()
+  const feed = useAcademyFeedState()
   const fullscreen = FULLSCREEN.some((re) => re.test(pathname))
+
+  // O app só funciona com aluno logado numa academia em dia (sem modo avulso).
+  if (session === undefined || feed === undefined) return <PageSpinner />
+  const access = accessState(session, feed)
+  const onLogin = pathname.startsWith(LOGIN_PATH)
+  if (!session || access === 'login') {
+    if (!onLogin) return <Navigate to={LOGIN_PATH} replace />
+    return (
+      <main id="conteudo" className="mx-auto min-h-dvh max-w-2xl">
+        <Suspense fallback={<PageSpinner />}>
+          <Outlet />
+        </Suspense>
+      </main>
+    )
+  }
+  if (onLogin) return <Navigate to="/" replace />
+  if (access !== 'ok') {
+    return (
+      <AccessBlockedScreen
+        session={session}
+        reason={access}
+        message={feed.blocked?.message ?? null}
+      />
+    )
+  }
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-2xl flex-col">

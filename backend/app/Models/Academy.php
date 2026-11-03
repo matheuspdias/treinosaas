@@ -19,6 +19,7 @@ class Academy extends Model
     {
         return [
             'deactivated_at' => 'datetime',
+            'suspended_at' => 'datetime',
         ];
     }
 
@@ -34,5 +35,11 @@ class Academy extends Model
     public function isActive(): bool
     {
         return $this->deactivated_at === null;
+    }
+
+    /** Suspensa (ex.: pagamento em atraso): alunos bloqueados, equipe ainda entra no painel. */
+    public function isSuspended(): bool
+    {
+        return $this->suspended_at !== null;
     }
 }

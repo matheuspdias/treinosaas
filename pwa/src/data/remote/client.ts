@@ -1,12 +1,13 @@
 import type { z } from 'zod'
 import { API_URL } from './config'
 
-export type ApiErrorKind = 'offline' | 'validation' | 'auth' | 'rate' | 'server' | 'invalid'
+export type ApiErrorKind =
+  'offline' | 'validation' | 'auth' | 'blocked' | 'rate' | 'server' | 'invalid'
 
 /** Erro da API com mensagem pronta para mostrar (pt-BR). */
 export class ApiError extends Error {
   readonly kind: ApiErrorKind
-  /** 401: 'unauthenticated' | 'inactive'. */
+  /** 401: 'unauthenticated' | 'inactive'. 403: 'academy_suspended'. */
   readonly code: string | undefined
   /** 422: primeira mensagem de cada campo. */
   readonly fields: Record<string, string>
@@ -56,7 +57,7 @@ export async function apiRequest<T = undefined>(
   path: string,
   { method = 'GET', body, token, schema, signal }: RequestOptions<T> = {},
 ): Promise<T> {
-  if (!API_URL) throw new ApiError('server', 'O app não está configurado para academias.')
+  if (!API_URL) throw new ApiError('server', 'O app não está configurado. Fale com a academia.')
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     throw new ApiError('offline', 'Sem internet. Tente de novo quando estiver conectado.')
   }
@@ -84,6 +85,10 @@ export async function apiRequest<T = undefined>(
   if (response.status === 401) {
     const code = typeof data.code === 'string' ? data.code : 'unauthenticated'
     throw new ApiError('auth', message || 'Sua sessão expirou. Entre de novo.', code)
+  }
+  // Academia suspensa: a sessão continua válida e volta a funcionar quando ela for reativada.
+  if (response.status === 403 && typeof data.code === 'string') {
+    throw new ApiError('blocked', message || 'Acesso bloqueado. Fale com a academia.', data.code)
   }
   if (response.status === 422) {
     const fields = firstFieldErrors(data.errors)

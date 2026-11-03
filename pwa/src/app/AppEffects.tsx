@@ -8,7 +8,7 @@ import { usePlanImagePrefetch } from '@/features/plans/usePlanImagePrefetch'
 export function AppEffects() {
   const { theme } = useSettings()
   useEffect(() => applyTheme(theme), [theme])
-  // Sem VITE_API_URL não faz nada. Com ela, só sincroniza se houver aluno logado.
+  // Só sincroniza se houver aluno logado.
   useEffect(() => startAcademySync(), [])
   usePlanImagePrefetch()
   return null
