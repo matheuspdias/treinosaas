@@ -19,7 +19,7 @@ export function AuthLayout({
           T
         </span>
         <div>
-          <p className="text-lg font-bold">TreinoApp</p>
+          <p className="text-lg font-bold">TreinoBox</p>
           <p className="text-sm text-fg-muted">Painel da academia</p>
         </div>
       </div>

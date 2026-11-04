@@ -325,7 +325,7 @@ export function SettingsPage() {
         </Section>
 
         <section className="px-1 text-sm text-fg-subtle">
-          <p>TreinoApp v{__APP_VERSION__}</p>
+          <p>TreinoBox v{__APP_VERSION__}</p>
           <p className="mt-1">
             Exercícios e imagens:{' '}
             <a

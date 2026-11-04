@@ -84,7 +84,7 @@ export function parseBackup(text: string): ParseBackupResult {
     return { ok: false, error: 'O arquivo não é um JSON válido.' }
   }
   if (typeof raw !== 'object' || raw === null || (raw as { app?: unknown }).app !== BACKUP_APP_ID) {
-    return { ok: false, error: 'Este arquivo não é um backup do TreinoApp.' }
+    return { ok: false, error: 'Este arquivo não é um backup do TreinoBox.' }
   }
   const version = (raw as { formatVersion?: unknown }).formatVersion
   if (typeof version === 'number' && version > BACKUP_FORMAT_VERSION) {

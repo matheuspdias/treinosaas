@@ -5,7 +5,7 @@
  */
 return [
     // Nome do produto em toda a landing (título, textos, mensagens do WhatsApp).
-    'app_name' => env('LANDING_APP_NAME', 'Treino'),
+    'app_name' => env('LANDING_APP_NAME', 'TreinoBox'),
 
     'whatsapp' => [
         // Só dígitos, com DDI e DDD: 5511912345678. Vazio: o WhatsApp abre para escolher o contato.

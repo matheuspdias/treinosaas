@@ -76,7 +76,7 @@ export async function refreshBranding(): Promise<void> {
         branding: {
           slug: ACADEMY_SLUG,
           name: 'Academia',
-          appName: 'Treino',
+          appName: 'TreinoBox',
           brandColor: null,
           iconUrl: null,
         },

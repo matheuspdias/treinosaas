@@ -64,7 +64,7 @@ function Body({ plan, letter, unit }: Omit<Props, 'open' | 'onClose'>) {
   const shareLink = async () => {
     if (!url) return
     try {
-      await navigator.share({ title: plan.name, text: `Ficha "${plan.name}" no TreinoApp`, url })
+      await navigator.share({ title: plan.name, text: `Ficha "${plan.name}" no TreinoBox`, url })
     } catch {
       // cancelado pelo usuário
     }

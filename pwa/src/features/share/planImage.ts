@@ -178,7 +178,7 @@ export async function renderPlanImage(input: PlanImageInput): Promise<Blob> {
   ctx.textAlign = 'left'
   ctx.fillStyle = t.fg
   ctx.font = `700 32px ${FONT}`
-  ctx.fillText('TreinoApp', PAD + 76, fy - 6)
+  ctx.fillText('TreinoBox', PAD + 76, fy - 6)
   ctx.fillStyle = t.subtle
   ctx.font = `400 28px ${FONT}`
   ctx.textAlign = 'right'
