@@ -1,0 +1,80 @@
+# Produção num droplet só. Use sempre pelo deploy.sh (lê as variáveis de backend/.env).
+services:
+
+  app:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: treinosaas_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./backend:/var/www/html
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+      - ./docker/php/fpm-pool.conf:/usr/local/etc/php-fpm.d/zz-pool.conf
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - treinosaas
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: treinosaas_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Usados no template do nginx (envsubst do próprio container).
+      API_HOST: ${API_HOST}
+      PWA_HOST: ${PWA_HOST}
+    volumes:
+      - ./backend:/var/www/html
+      - ./pwa/public/exercises:/var/www/html/public/exercises:ro
+      - ./pwa/dist:/srv/pwa:ro
+      - ./docker/nginx/prod.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    depends_on:
+      - app
+    networks:
+      - treinosaas
+
+  # Sem portas publicadas: banco e Redis só são acessíveis pelos containers.
+  postgres:
+    image: postgres:16-alpine
+    container_name: treinosaas_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    networks:
+      - treinosaas
+
+  redis:
+    image: redis:7-alpine
+    container_name: treinosaas_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - treinosaas
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  treinosaas:
+    driver: bridge

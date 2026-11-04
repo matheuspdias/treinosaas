@@ -1,6 +1,6 @@
-# TreinoSaaS
+# TreinoBox
 
-TreinoApp para academias: o app de treinos do aluno (PWA offline) + painel da academia + API.
+TreinoBox para academias: o app de treinos do aluno (PWA offline) + painel da academia + API.
 
 ```
 backend/   Laravel 13 (controller → service → repository) + painel Inertia/React + API do aluno (Sanctum)
@@ -44,6 +44,10 @@ make artisan c='academy:list'
 make artisan c='academy:suspend academia-demo --reason="mensalidade de outubro"'   # motivo é interno
 make artisan c='academy:reactivate academia-demo'
 ```
+
+## Deploy
+
+Passo a passo para um droplet da DigitalOcean (com HTTPS, em treinobox.com.br) em [DEPLOY.md](DEPLOY.md).
 
 ## Landing de venda
 
