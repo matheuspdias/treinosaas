@@ -178,6 +178,8 @@ ssh deploy@SEU_IP
 cd /opt/treinosaas && ./deploy.sh
 ```
 
+Pelo console web da DigitalOcean (que entra como root) também funciona: `cd /opt/treinosaas && ./deploy.sh` troca sozinho para o usuário deploy.
+
 Mudou algo no `backend/.env`? Rode o `./deploy.sh` (ele recria o cache de configuração).
 
 ## Comandos úteis

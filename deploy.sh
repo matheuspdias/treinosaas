@@ -3,6 +3,12 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+# O projeto é do usuário deploy (uid 1000, o mesmo dos containers). Rodado como root
+# (ex.: console web da DigitalOcean), troca para ele em vez de criar arquivos do root.
+if [ "$(id -u)" -eq 0 ]; then
+    exec su deploy -c "$PWD/deploy.sh"
+fi
+
 COMPOSE="docker compose -f docker-compose.prod.yml --env-file backend/.env"
 NODE="docker run --rm -u 1000:1000 -v $PWD:/workspace -w /workspace node:22-bookworm-slim sh -c"
 APP_URL=$(grep -E '^APP_URL=' backend/.env | cut -d= -f2- | tr -d '"')
