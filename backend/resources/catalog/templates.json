@@ -1,0 +1,818 @@
+[
+  {
+    "id": "abc",
+    "name": "ABC",
+    "description": "O clássico das academias: cada grupo muscular num dia.",
+    "frequency": "3 a 6 dias por semana",
+    "level": "Iniciante a intermediário",
+    "plans": [
+      {
+        "name": "Treino A",
+        "color": "lime",
+        "exercises": [
+          {
+            "exerciseId": "Barbell_Bench_Press_-_Medium_Grip",
+            "sets": 4,
+            "repMin": 6,
+            "repMax": 10,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Incline_Dumbbell_Press",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Butterfly",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Dumbbell_Shoulder_Press",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Side_Lateral_Raise",
+            "sets": 3,
+            "repMin": 12,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Triceps_Pushdown_-_Rope_Attachment",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "EZ-Bar_Skullcrusher",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          }
+        ]
+      },
+      {
+        "name": "Treino B",
+        "color": "cyan",
+        "exercises": [
+          {
+            "exerciseId": "Wide-Grip_Lat_Pulldown",
+            "sets": 4,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Bent_Over_Barbell_Row",
+            "sets": 3,
+            "repMin": 6,
+            "repMax": 10,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Seated_Cable_Rows",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "One-Arm_Dumbbell_Row",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Face_Pull",
+            "sets": 3,
+            "repMin": 12,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Barbell_Curl",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Hammer_Curls",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          }
+        ]
+      },
+      {
+        "name": "Treino C",
+        "color": "violet",
+        "exercises": [
+          {
+            "exerciseId": "Barbell_Squat",
+            "sets": 4,
+            "repMin": 6,
+            "repMax": 10,
+            "restSec": 150,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Leg_Press",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Romanian_Deadlift",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 10,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Leg_Extensions",
+            "sets": 3,
+            "repMin": 12,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Lying_Leg_Curls",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Standing_Calf_Raises",
+            "sets": 4,
+            "repMin": 12,
+            "repMax": 20,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Cable_Crunch",
+            "sets": 3,
+            "repMin": 12,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "abcd",
+    "name": "ABCD",
+    "description": "Mais volume por grupo, com um dia só para ombros.",
+    "frequency": "4 dias por semana",
+    "level": "Intermediário",
+    "plans": [
+      {
+        "name": "Treino A",
+        "color": "lime",
+        "exercises": [
+          {
+            "exerciseId": "Barbell_Bench_Press_-_Medium_Grip",
+            "sets": 4,
+            "repMin": 6,
+            "repMax": 10,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Incline_Dumbbell_Press",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Cable_Crossover",
+            "sets": 3,
+            "repMin": 12,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Triceps_Pushdown",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Standing_Dumbbell_Triceps_Extension",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          }
+        ]
+      },
+      {
+        "name": "Treino B",
+        "color": "cyan",
+        "exercises": [
+          {
+            "exerciseId": "Wide-Grip_Lat_Pulldown",
+            "sets": 4,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "T-Bar_Row_with_Handle",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 10,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Seated_Cable_Rows",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Barbell_Curl",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Incline_Dumbbell_Curl",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          }
+        ]
+      },
+      {
+        "name": "Treino C",
+        "color": "violet",
+        "exercises": [
+          {
+            "exerciseId": "Barbell_Squat",
+            "sets": 4,
+            "repMin": 6,
+            "repMax": 10,
+            "restSec": 150,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Leg_Press",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Split_Squat_with_Dumbbells",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Leg_Extensions",
+            "sets": 3,
+            "repMin": 12,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Lying_Leg_Curls",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Seated_Calf_Raise",
+            "sets": 4,
+            "repMin": 12,
+            "repMax": 20,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          }
+        ]
+      },
+      {
+        "name": "Treino D",
+        "color": "orange",
+        "exercises": [
+          {
+            "exerciseId": "Standing_Military_Press",
+            "sets": 4,
+            "repMin": 6,
+            "repMax": 10,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Side_Lateral_Raise",
+            "sets": 4,
+            "repMin": 12,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Reverse_Machine_Flyes",
+            "sets": 3,
+            "repMin": 12,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Barbell_Shrug",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Hanging_Leg_Raise",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Ab_Crunch_Machine",
+            "sets": 3,
+            "repMin": 12,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "fullbody",
+    "name": "Full Body",
+    "description": "Corpo inteiro em cada treino, alternando A e B. Ótimo para quem tem pouco tempo.",
+    "frequency": "2 a 3 dias por semana",
+    "level": "Iniciante",
+    "plans": [
+      {
+        "name": "Full Body A",
+        "color": "emerald",
+        "exercises": [
+          {
+            "exerciseId": "Barbell_Squat",
+            "sets": 3,
+            "repMin": 6,
+            "repMax": 10,
+            "restSec": 150,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Barbell_Bench_Press_-_Medium_Grip",
+            "sets": 3,
+            "repMin": 6,
+            "repMax": 10,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Bent_Over_Barbell_Row",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 10,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Dumbbell_Shoulder_Press",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Barbell_Curl",
+            "sets": 2,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Triceps_Pushdown",
+            "sets": 2,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          }
+        ]
+      },
+      {
+        "name": "Full Body B",
+        "color": "blue",
+        "exercises": [
+          {
+            "exerciseId": "Romanian_Deadlift",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 10,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Incline_Dumbbell_Press",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Wide-Grip_Lat_Pulldown",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Leg_Press",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Side_Lateral_Raise",
+            "sets": 3,
+            "repMin": 12,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Cable_Crunch",
+            "sets": 3,
+            "repMin": 12,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "upperlower",
+    "name": "Upper / Lower",
+    "description": "Superiores e inferiores alternados: cada grupo treina duas vezes por semana.",
+    "frequency": "4 dias por semana",
+    "level": "Intermediário",
+    "plans": [
+      {
+        "name": "Superior A",
+        "color": "blue",
+        "exercises": [
+          {
+            "exerciseId": "Barbell_Bench_Press_-_Medium_Grip",
+            "sets": 4,
+            "repMin": 5,
+            "repMax": 8,
+            "restSec": 150,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Bent_Over_Barbell_Row",
+            "sets": 4,
+            "repMin": 6,
+            "repMax": 8,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Dumbbell_Shoulder_Press",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 10,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Wide-Grip_Lat_Pulldown",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Barbell_Curl",
+            "sets": 2,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Triceps_Pushdown",
+            "sets": 2,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          }
+        ]
+      },
+      {
+        "name": "Inferior A",
+        "color": "red",
+        "exercises": [
+          {
+            "exerciseId": "Barbell_Squat",
+            "sets": 4,
+            "repMin": 5,
+            "repMax": 8,
+            "restSec": 180,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Romanian_Deadlift",
+            "sets": 3,
+            "repMin": 6,
+            "repMax": 10,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Leg_Press",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Lying_Leg_Curls",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Standing_Calf_Raises",
+            "sets": 4,
+            "repMin": 10,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          }
+        ]
+      },
+      {
+        "name": "Superior B",
+        "color": "cyan",
+        "exercises": [
+          {
+            "exerciseId": "Incline_Dumbbell_Press",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Seated_Cable_Rows",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Arnold_Dumbbell_Press",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Close-Grip_Front_Lat_Pulldown",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Hammer_Curls",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "EZ-Bar_Skullcrusher",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          }
+        ]
+      },
+      {
+        "name": "Inferior B",
+        "color": "orange",
+        "exercises": [
+          {
+            "exerciseId": "Barbell_Deadlift",
+            "sets": 3,
+            "repMin": 5,
+            "repMax": 8,
+            "restSec": 180,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Hack_Squat",
+            "sets": 3,
+            "repMin": 8,
+            "repMax": 12,
+            "restSec": 120,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Split_Squat_with_Dumbbells",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 12,
+            "restSec": 90,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Seated_Leg_Curl",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Seated_Calf_Raise",
+            "sets": 4,
+            "repMin": 12,
+            "repMax": 20,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          },
+          {
+            "exerciseId": "Hanging_Leg_Raise",
+            "sets": 3,
+            "repMin": 10,
+            "repMax": 15,
+            "restSec": 60,
+            "incrementKg": null,
+            "notes": null
+          }
+        ]
+      }
+    ]
+  }
+]

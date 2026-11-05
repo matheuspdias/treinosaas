@@ -25,10 +25,11 @@ class ProgramService
         private readonly ExerciseCatalog $catalog,
     ) {}
 
-    public function createTemplate(array $data, User $author): Program
+    /** Sem autor: modelo criado pelo sistema (ex.: modelos prontos de uma academia nova). */
+    public function createTemplate(array $data, ?User $author): Program
     {
         return DB::transaction(function () use ($data, $author) {
-            $program = $this->programs->create($this->attributes($data), null, $author->id);
+            $program = $this->programs->create($this->attributes($data), null, $author?->id);
             $this->programs->replaceStructure($program, $this->structure($data['plans']));
 
             return $program;

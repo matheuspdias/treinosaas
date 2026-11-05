@@ -160,6 +160,14 @@ docker compose -f docker-compose.prod.yml --env-file backend/.env exec app \
 
 Ele mostra o slug e uma **senha provisória**. O dono entra em `https://treinobox.com.br/login` e troca a senha em Configurações.
 
+A academia já vem com 4 modelos de treino prontos (ABC, ABCD, Full Body e Upper / Lower), que o dono pode editar ou arquivar em **Treinos**. Academias criadas antes disso recebem os modelos com:
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file backend/.env exec app php artisan academy:ready-templates --all
+```
+
+Rodar de novo não duplica.
+
 Não rode `db:seed` em produção: o seeder cria as academias de demonstração com senha `password`.
 
 ## 8. Conferir

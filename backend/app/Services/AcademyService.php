@@ -11,9 +11,15 @@ use Illuminate\Support\Str;
 
 class AcademyService
 {
-    public function __construct(private readonly AcademyRepository $academies) {}
+    public function __construct(
+        private readonly AcademyRepository $academies,
+        private readonly ReadyTemplateService $readyTemplates,
+    ) {}
 
-    /** Cria a academia e vincula o dono. O dono é criado se o e-mail ainda não existir. */
+    /**
+     * Cria a academia e vincula o dono. O dono é criado se o e-mail ainda não existir.
+     * A academia já nasce com os modelos prontos do app (ABC, ABCD...), para ajustar à vontade.
+     */
     public function createWithOwner(string $name, User $owner): Academy
     {
         return DB::transaction(function () use ($name, $owner) {
@@ -23,6 +29,8 @@ class AcademyService
             if ($owner->current_academy_id === null) {
                 $owner->forceFill(['current_academy_id' => $academy->id])->save();
             }
+
+            $this->readyTemplates->install($academy, $owner);
 
             return $academy;
         });

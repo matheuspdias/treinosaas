@@ -2,6 +2,8 @@
  * Exporta uma versão enxuta do catálogo (nomes pt-BR, apelidos, músculos e equipamento) para o
  * backend, onde o painel monta os treinos e o servidor valida os exercícios recebidos.
  * As imagens não são copiadas: o nginx serve pwa/public/exercises direto.
+ * Exporta também os modelos de treino prontos (ABC, Full Body...), que toda academia nova recebe
+ * como modelos dela.
  *
  * Uso: npm run catalog:backend (rodar de novo sempre que o catálogo ou os nomes mudarem)
  */
@@ -10,10 +12,12 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { EXERCISE_NAMES_PT_BR } from '../src/catalog/i18n/pt-BR'
 import { MUSCLE_GROUPS } from '../src/domain/muscles'
+import { TEMPLATES } from '../src/templates/templates'
 import type { RawCatalogExercise } from '../src/catalog/types'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = join(ROOT, '..', 'backend', 'resources', 'catalog', 'exercises.json')
+const OUT_TEMPLATES = join(ROOT, '..', 'backend', 'resources', 'catalog', 'templates.json')
 
 const EQUIPMENT_LABELS: Record<string, string> = {
   barbell: 'Barra',
@@ -70,3 +74,25 @@ const out = {
 await mkdir(dirname(OUT), { recursive: true })
 await writeFile(OUT, JSON.stringify(out))
 console.log(`${exercises.length} exercícios exportados para ${OUT}`)
+
+// O painel só monta treinos com exercícios do catálogo: modelos com personalizados ficam de fora.
+const templates = TEMPLATES.filter((t) => !t.customExercises?.length).map((t) => ({
+  id: t.id,
+  name: t.name,
+  plans: t.plans.map((plan) => ({
+    name: plan.name,
+    color: plan.color,
+    exercises: plan.exercises.map(([exerciseId, sets, repMin, repMax, restSec, opts]) => ({
+      exerciseId,
+      sets,
+      repMin,
+      repMax,
+      restSec,
+      incrementKg: opts?.incrementKg ?? null,
+      notes: opts?.notes ?? null,
+    })),
+  })),
+}))
+
+await writeFile(OUT_TEMPLATES, JSON.stringify(templates, null, 2) + '\n')
+console.log(`${templates.length} modelos prontos exportados para ${OUT_TEMPLATES}`)
