@@ -11,7 +11,8 @@ use App\Http\Controllers\Panel\StudentController;
 use Illuminate\Support\Facades\Route;
 
 // Landing de venda para visitantes; quem está logado vai para o painel.
-Route::get('/', LandingController::class)->name('home');
+Route::get('/', [LandingController::class, 'home'])->name('home');
+Route::get('privacidade', [LandingController::class, 'privacy'])->name('privacy');
 
 // Painel da academia. `tenant` define a academia a partir do usuário (antes do route model
 // binding, ver bootstrap/app.php); cada rota exige a permissão do papel (App\Enums\Ability).

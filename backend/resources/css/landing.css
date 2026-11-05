@@ -5,6 +5,7 @@
 @import 'tailwindcss' source(none);
 
 @source '../views/landing.blade.php';
+@source '../views/privacidade.blade.php';
 @source '../views/landing';
 @source '../views/components/landing';
 @source '../js/landing.js';
@@ -169,6 +170,122 @@
     border-radius: 0.6rem 0.6rem 1.95rem 1.95rem;
   }
 
+  /* Tela inicial de celular feita em HTML (seção "Sua marca"); vai dentro de .phone. */
+  .tela-inicial {
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 390 / 844;
+    overflow: hidden;
+    border-radius: 0.6rem 0.6rem 1.95rem 1.95rem;
+    padding: 0.35rem 0.6rem 0.6rem;
+    background: linear-gradient(180deg, #232323, #0d0d0d);
+    color: var(--color-giz);
+  }
+  .tela-inicial .status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.3rem;
+    font-size: 0.6rem;
+    font-weight: 700;
+  }
+  .tela-inicial .bateria {
+    width: 1rem;
+    height: 0.45rem;
+    border-radius: 0.15rem;
+    border: 1px solid var(--color-cinza);
+    background: linear-gradient(90deg, var(--color-giz) 70%, transparent 70%) content-box;
+    padding: 1px;
+  }
+  .tela-inicial ul {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .tela-inicial .apps {
+    gap: 0.8rem 0.5rem;
+    margin-top: 1.6rem;
+  }
+  .tela-inicial li {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .tela-inicial .icone {
+    display: grid;
+    width: 78%;
+    aspect-ratio: 1;
+    place-items: center;
+    border-radius: 24%;
+    background: var(--color-chumbo);
+    color: var(--color-cinza);
+  }
+  .tela-inicial .icone svg {
+    width: 50%;
+    height: 50%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .tela-inicial .rotulo {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 0.5rem;
+    line-height: 1.1;
+    color: var(--color-cinza);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tela-inicial .academia .icone {
+    background: #0b0b0b;
+    animation: chamada 2.4s ease-out infinite;
+  }
+  .tela-inicial .academia img {
+    width: 84%;
+    height: auto;
+  }
+  /* O nome da academia é o destaque: aparece inteiro, em duas linhas. */
+  .tela-inicial .academia .rotulo {
+    max-width: none;
+    overflow: visible;
+    font-size: 0.45rem;
+    font-weight: 700;
+    color: var(--color-giz);
+    text-align: center;
+    white-space: normal;
+  }
+  .tela-inicial .dock {
+    gap: 0.25rem;
+    margin-top: auto;
+    border-radius: 1.1rem;
+    padding: 0.45rem 0.3rem;
+    background: rgb(255 255 255 / 0.07);
+  }
+
+  /* Texto corrido da política de privacidade. */
+  .politica h2 {
+    @apply font-display mt-14 text-3xl leading-tight uppercase sm:text-4xl;
+  }
+  .politica h3 {
+    @apply font-cond mt-8 text-xl font-bold uppercase;
+  }
+  .politica p,
+  .politica ul {
+    @apply text-grafite mt-4 text-lg leading-relaxed;
+  }
+  .politica ul {
+    @apply list-disc space-y-2 pl-6;
+  }
+  .politica strong {
+    @apply text-ferro;
+  }
+  .politica a {
+    @apply text-ferro underline underline-offset-4;
+  }
+
   /* Notebook para o painel. */
   .laptop {
     border-radius: 0.9rem 0.9rem 0 0;
@@ -318,12 +435,31 @@
   transform: rotate(45deg);
 }
 
+/* Anel que "chama" o olho para o ícone da academia na tela inicial. */
+@keyframes chamada {
+  0% {
+    box-shadow:
+      0 0 0 2px var(--color-anilha),
+      0 0 0 2px rgb(255 209 0 / 0.55);
+  }
+  70%,
+  100% {
+    box-shadow:
+      0 0 0 2px var(--color-anilha),
+      0 0 0 10px rgb(255 209 0 / 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   .risco {
     animation: none;
+  }
+  .tela-inicial .academia .icone {
+    animation: none;
+    box-shadow: 0 0 0 2px var(--color-anilha);
   }
   .js [data-reveal] {
     opacity: 1;

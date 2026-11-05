@@ -9,3 +9,8 @@ export const ACADEMY_SLUG: string | null =
 
 /** Prefixo das rotas do app ('' fora de uma academia). */
 export const APP_BASE = ACADEMY_SLUG ? `/${ACADEMY_SLUG}` : ''
+
+/** Política de privacidade, no site do painel (mesmo servidor da API). */
+export const PRIVACY_URL: string | null = API_URL
+  ? `${API_URL.replace(/\/api$/, '')}/privacidade`
+  : null

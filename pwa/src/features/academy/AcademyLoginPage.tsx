@@ -3,6 +3,7 @@ import { useId, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router'
 import { useAcademyFeed, useBranding } from '@/data/hooks'
+import { PRIVACY_URL } from '@/data/remote/config'
 import { ApiError, createPinAndLogin, loginWithPin, lookupPhone } from '@/data/sync'
 import { formatPhoneInput, isCompletePhone, pinProblem } from '@/domain/academy'
 import { toast } from '@/stores/toastStore'
@@ -281,6 +282,16 @@ export function AcademyLoginPage() {
             <Card className="p-4">
               <p className="text-sm font-semibold">Aviso de privacidade</p>
               <p className="mt-1 text-sm text-fg-muted">{PRIVACY_TEXT}</p>
+              {PRIVACY_URL && (
+                <a
+                  href={PRIVACY_URL}
+                  target="_blank"
+                  rel="noopener"
+                  className="mt-2 inline-flex min-h-touch items-center text-sm font-semibold text-accent underline underline-offset-4"
+                >
+                  Ler a política de privacidade
+                </a>
+              )}
               <div className="mt-3 flex min-h-touch items-center gap-3">
                 <input
                   id={privacyId}

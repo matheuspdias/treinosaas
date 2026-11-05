@@ -1,8 +1,10 @@
 @php
+    // A resposta do preço vem da config e ganha o botão do WhatsApp logo abaixo.
     $perguntas = [
+        ['Quanto custa?', config('landing.pricing_answer'), 'preco'],
         [
             'O aluno precisa instalar alguma coisa?',
-            'Não precisa baixar de loja. O aluno abre o link da academia no navegador do celular e já usa. Se quiser, adiciona à tela de início e o app vira um ícone com o nome e o logo da academia. Durante o treino funciona até sem internet.',
+            'Não precisa baixar de loja. O aluno abre o link da academia no celular e o app mostra como colocá-lo na tela de início, com o nome e o logo da academia. Durante o treino funciona até sem internet.',
         ],
         [
             'Funciona em iPhone e Android?',
@@ -39,13 +41,19 @@
             </div>
         </div>
         <div class="faq border-t-4 border-ferro lg:col-span-8">
-            @foreach ($perguntas as [$pergunta, $resposta])
+            @foreach ($perguntas as $item)
+                @php([$pergunta, $resposta] = $item)
                 <details class="group border-b border-ferro/20">
                     <summary class="flex min-h-16 cursor-pointer items-center justify-between gap-6 py-5 font-cond text-xl font-bold uppercase sm:text-2xl">
                         {{ $pergunta }}
                         <span class="mais display shrink-0 text-3xl leading-none" aria-hidden="true">+</span>
                     </summary>
                     <p class="max-w-2xl pb-6 text-lg leading-snug text-grafite">{{ $resposta }}</p>
+                    @if (isset($item[2]))
+                        <a href="{{ $whatsapp($item[2]) }}" target="_blank" rel="noopener" class="btn btn-ferro mb-6">
+                            <x-landing.whatsapp-icon class="size-5" /> Ver o valor no WhatsApp
+                        </a>
+                    @endif
                 </details>
             @endforeach
         </div>

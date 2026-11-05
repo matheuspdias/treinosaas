@@ -32,13 +32,7 @@
     <meta property="og:image:alt" content="Celular com o treino do aluno e o título: sua academia sem ficha de papel">
     <meta name="twitter:card" content="summary_large_image">
 
-    <link rel="icon" href="{{ asset('landing/favicon.svg') }}" type="image/svg+xml">
-    <link rel="icon" href="{{ asset('landing/favicon-32.png') }}" sizes="32x32" type="image/png">
-    <link rel="apple-touch-icon" href="{{ asset('landing/apple-touch-icon.png') }}">
-
-    <link rel="preload" href="/fonts/landing/anton-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="/fonts/landing/barlow-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-    @vite(['resources/css/landing.css', 'resources/js/landing.js'])
+    @include('landing.head')
 </head>
 <body class="bg-ferro text-giz">
     <a href="#conteudo" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-anilha focus:px-4 focus:py-3 focus:font-bold focus:text-ferro">Pular para o conteúdo</a>

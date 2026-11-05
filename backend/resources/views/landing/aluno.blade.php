@@ -28,7 +28,8 @@
                 <h2 id="aluno-titulo" class="display mt-5 text-[clamp(3rem,12.5vw,6rem)]" data-reveal>
                     O treino no bolso. A carga anotada.
                 </h2>
-                <ul class="mt-8 border-t border-chumbo">
+                {{-- No tablet a lista vira duas colunas, para não sobrar espaço vazio à direita. --}}
+                <ul class="mt-8 border-t border-chumbo sm:grid sm:grid-cols-2 sm:gap-x-8 lg:block">
                     @foreach ($recursos as [$titulo, $texto])
                         <li class="border-b border-chumbo py-4" data-reveal>
                             <p class="font-cond text-xl font-bold uppercase">{{ $titulo }}</p>

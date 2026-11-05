@@ -24,5 +24,6 @@ export function validityText(expiresOn: string | null, expired: boolean): string
 
 export const PRIVACY_TEXT =
   'Para usar o treino da academia, guardamos seu nome, seu celular e os treinos e cargas que você ' +
-  'registrar nas fichas da academia. Eles servem só para a sua academia acompanhar seu treino. ' +
+  'registrar nas fichas da academia e, se a academia fizer, suas avaliações físicas. Eles servem ' +
+  'só para a sua academia acompanhar seu treino. ' +
   'As fichas que você cria sozinho continuam só no seu aparelho. Para apagar seus dados, peça à academia.'

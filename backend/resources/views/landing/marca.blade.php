@@ -19,15 +19,12 @@
                     No painel você escolhe o nome, o logo e a cor. Cada academia ganha o próprio link: o aluno abre, instala e o ícone fica na tela do celular dele, ao lado do banco e do WhatsApp.
                 </p>
             </div>
-            <div class="flex items-end justify-center gap-6 lg:col-span-5" data-reveal>
-                {{-- Ícone na tela inicial: exemplo genérico, não é logo de cliente. --}}
-                <div class="flex w-24 flex-col items-center gap-2" aria-hidden="true">
-                    <span class="flex size-20 items-center justify-center rounded-[22%] bg-ferro font-display text-2xl text-anilha shadow-[0_12px_24px_-10px_rgb(0_0_0/0.6)]">SUA</span>
-                    <span class="w-full truncate text-center text-sm font-semibold">Sua Academia</span>
-                </div>
-                <x-landing.phone name="app-entrar" sizes="(min-width: 1024px) 260px, 55vw"
-                    alt="Tela de entrada do app com o logo e o nome da academia"
-                    class="w-[55%] max-w-[16rem] rotate-[-3deg]" />
+            {{-- O ícone na tela inicial e o app aberto com a marca da academia. --}}
+            <div class="flex items-start justify-center gap-4 sm:gap-8 lg:col-span-5" data-reveal>
+                <x-landing.home-screen class="w-[47%] max-w-[15rem] rotate-[-3deg]" />
+                <x-landing.phone name="app-entrar" sizes="(min-width: 1024px) 240px, 47vw"
+                    alt="App aberto: a tela de entrada com o logo e o nome da academia"
+                    class="mt-10 w-[47%] max-w-[15rem] rotate-[3deg] sm:mt-16" />
             </div>
         </div>
     </div>
