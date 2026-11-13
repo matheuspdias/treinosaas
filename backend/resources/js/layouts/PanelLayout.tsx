@@ -5,6 +5,7 @@ import {
   LogOut,
   Megaphone,
   Settings,
+  ShieldCheck,
   TriangleAlert,
   Users,
   type LucideIcon,
@@ -20,6 +21,8 @@ interface NavItem {
   label: string
   icon: LucideIcon
   ability: Ability | null
+  /** Só para o super admin (painel /admin, fora da academia). */
+  superAdmin?: boolean
   /** Prefixos de URL que deixam o item ativo. */
   match: string[]
 }
@@ -54,6 +57,14 @@ const NAV: NavItem[] = [
     ability: null,
     match: ['/settings'],
   },
+  {
+    href: '/admin/academias',
+    label: 'Admin',
+    icon: ShieldCheck,
+    ability: null,
+    superAdmin: true,
+    match: ['/admin'],
+  },
 ]
 
 export interface PanelLayoutProps {
@@ -71,7 +82,9 @@ export interface PanelLayoutProps {
 export function PanelLayout({ title, children, width = 'wide' }: PanelLayoutProps) {
   const { url, props } = usePage<SharedData>()
   const can = useCan()
-  const items = NAV.filter((i) => i.ability === null || can(i.ability))
+  const items = NAV.filter((i) =>
+    i.superAdmin ? props.auth.user?.isSuperAdmin : i.ability === null || can(i.ability),
+  )
   const isActive = (i: NavItem) =>
     i.match.some((m) => url === m || url.startsWith(`${m}/`) || url.startsWith(`${m}?`))
   const user = props.auth.user

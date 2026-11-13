@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\BillingCycle;
+use App\Enums\PlanTier;
 use Database\Factories\AcademyFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,12 +18,24 @@ class Academy extends Model
 
     protected $fillable = ['name', 'slug', 'timezone'];
 
+    /** Mesmos padrões do banco, para o model recém-criado já ter a assinatura. */
+    protected $attributes = [
+        'plan_tier' => 'essencial',
+        'billing_cycle' => 'monthly',
+        'is_founder' => false,
+    ];
+
     protected function casts(): array
     {
         return [
             'deactivated_at' => 'datetime',
             'suspended_at' => 'datetime',
             'branding_updated_at' => 'datetime',
+            'plan_tier' => PlanTier::class,
+            'billing_cycle' => BillingCycle::class,
+            'is_founder' => 'boolean',
+            'founder_since' => 'date',
+            'trial_ends_at' => 'date',
         ];
     }
 
@@ -69,6 +83,11 @@ class Academy extends Model
 
         // ?v= troca a URL quando o ícone muda (o celular guarda ícones em cache).
         return Storage::disk('public')->url($path).'?v='.$this->branding_updated_at?->getTimestamp();
+    }
+
+    public function inTrial(): bool
+    {
+        return $this->trial_ends_at !== null && $this->trial_ends_at->endOfDay()->isFuture();
     }
 
     /** Suspensa (ex.: pagamento em atraso): alunos bloqueados, equipe ainda entra no painel. */

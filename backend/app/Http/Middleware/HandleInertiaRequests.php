@@ -44,7 +44,10 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'auth' => [
                 // Só o necessário para o layout; nunca o model inteiro.
-                'user' => $user?->only(['id', 'name', 'email', 'email_verified_at']),
+                'user' => $user ? [
+                    ...$user->only(['id', 'name', 'email', 'email_verified_at']),
+                    'isSuperAdmin' => $user->isSuperAdmin(),
+                ] : null,
             ],
             // Resolvido sob demanda: o middleware `tenant` roda depois deste.
             'academy' => fn () => $this->academy(),

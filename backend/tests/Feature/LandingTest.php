@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Enums\Role;
+use App\Models\Academy;
+use App\Services\FounderProgramService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -25,24 +27,66 @@ class LandingTest extends TestCase
             ->assertSee('<span class="risco" aria-hidden="true"></span>', false);
     }
 
-    public function test_planos_ficam_ocultos_por_padrao_sem_links_para_eles(): void
+    public function test_planos_aparecem_com_preco_de_fundador_e_vagas_reais(): void
     {
-        $html = $this->get('/')->assertOk()->getContent();
-
-        $this->assertStringNotContainsString('id="planos"', $html);
-        $this->assertStringNotContainsString('#planos', $html);
-        $this->assertStringNotContainsString('R$ XX', $html);
-    }
-
-    public function test_planos_aparecem_quando_ligados(): void
-    {
-        config(['landing.show_pricing' => true]);
+        config(['landing.app_name' => 'Ferro', 'landing.whatsapp.number' => '5511912345678']);
+        Academy::factory()->count(3)->create(['is_founder' => true]);
 
         $this->get('/')
             ->assertOk()
             ->assertSee('id="planos"', false)
             ->assertSee('href="#planos"', false)
-            ->assertSee('R$ XX');
+            ->assertSee('Planos simples, sem taxa de implantação.')
+            ->assertSee('Programa Fundadores: restam 7 de 10 vagas')
+            ->assertSee('aria-valuenow="3"', false)
+            ->assertSee('<s>R$ 149/mês</s>', false)
+            ->assertSee('R$ 79')
+            ->assertSee('R$ 74,17')
+            ->assertSee('Preço de fundador')
+            ->assertSee('Recomendado')
+            ->assertSee('Teste grátis de 14 dias')
+            ->assertSee('Como funciona o preço de fundador')
+            ->assertSee('https://wa.me/5511912345678?text='.rawurlencode('Oi! Vim pelo site do Ferro e quero agendar uma demonstração do plano Academia (preço de fundador).'), false);
+    }
+
+    public function test_vagas_esgotadas_mostram_so_o_preco_cheio(): void
+    {
+        config(['pricing.founder.spots_total' => 2]);
+        Academy::factory()->count(2)->create(['is_founder' => true]);
+
+        $html = $this->get('/')
+            ->assertOk()
+            ->assertSee('Vagas de fundador esgotadas')
+            ->assertSee('R$ 149')
+            ->getContent();
+
+        $this->assertStringNotContainsString('Preço de fundador', $html);
+        $this->assertStringNotContainsString('<s>', $html);
+        $this->assertStringNotContainsString(rawurlencode('(preço de fundador)'), $html);
+    }
+
+    public function test_sem_a_contagem_de_vagas_o_contador_some_e_os_precos_ficam(): void
+    {
+        $this->mock(FounderProgramService::class)->shouldReceive('spots')->andThrow(new \RuntimeException('banco fora'));
+
+        $html = $this->get('/')
+            ->assertOk()
+            ->assertSee('id="planos"', false)
+            ->assertSee('R$ 89')
+            ->getContent();
+
+        $this->assertStringNotContainsString('Programa Fundadores', $html);
+        $this->assertStringNotContainsString('Preço de fundador', $html);
+    }
+
+    public function test_planos_desligados_somem_junto_com_os_links(): void
+    {
+        config(['landing.show_pricing' => false]);
+
+        $html = $this->get('/')->assertOk()->getContent();
+
+        $this->assertStringNotContainsString('id="planos"', $html);
+        $this->assertStringNotContainsString('#planos', $html);
     }
 
     public function test_sem_numero_configurado_o_whatsapp_abre_para_escolher_o_contato(): void
@@ -57,9 +101,15 @@ class LandingTest extends TestCase
         $this->actingAs($this->member(Role::Owner))->get('/')->assertRedirect(route('dashboard'));
     }
 
-    public function test_faq_responde_quanto_custa_com_texto_da_config(): void
+    public function test_faq_responde_quanto_custa_pelos_planos(): void
+    {
+        $this->get('/')->assertSee('De R$ 89 a R$ 229 por mês');
+    }
+
+    public function test_faq_responde_quanto_custa_com_texto_da_config_sem_os_planos(): void
     {
         config([
+            'landing.show_pricing' => false,
             'landing.app_name' => 'Ferro',
             'landing.whatsapp.number' => '5511912345678',
             'landing.pricing_answer' => 'Depende do número de alunos.',

@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\BillingCycle;
+use App\Enums\PlanTier;
 use App\Models\User;
-use App\Services\AcademyService;
+use App\Services\AcademyBillingService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 
 /** Não há cadastro público: academias novas entram por aqui. */
 class CreateAcademyCommand extends Command
@@ -17,7 +18,7 @@ class CreateAcademyCommand extends Command
 
     protected $description = 'Cria uma academia e o usuário dono dela';
 
-    public function handle(AcademyService $service): int
+    public function handle(AcademyBillingService $service): int
     {
         $email = $this->option('owner-email') ?? $this->ask('E-mail do dono');
 
@@ -27,20 +28,22 @@ class CreateAcademyCommand extends Command
             return self::FAILURE;
         }
 
-        $password = null;
-        $owner = User::query()->where('email', $email)->first();
+        $name = User::query()->where('email', $email)->exists()
+            ? null
+            : ($this->option('owner-name') ?? $this->ask('Nome do dono'));
 
-        if ($owner === null) {
-            $password = Str::password(14, symbols: false);
-            $owner = User::query()->create([
-                'name' => $this->option('owner-name') ?? $this->ask('Nome do dono'),
-                'email' => $email,
-                'password' => $password,
-            ]);
-            $owner->forceFill(['email_verified_at' => now()])->save();
-        }
-
-        $academy = $service->createWithOwner($this->argument('name'), $owner);
+        // Plano e fundador se ajustam depois no /admin; começa no Essencial com o teste grátis.
+        ['academy' => $academy, 'owner' => $owner, 'password' => $password] = $service->create(
+            $this->argument('name'),
+            $email,
+            $name,
+            [
+                'plan_tier' => PlanTier::Essencial->value,
+                'billing_cycle' => BillingCycle::Monthly->value,
+                'is_founder' => false,
+                'trial_ends_at' => today()->addDays((int) config('pricing.trial_days'))->toDateString(),
+            ],
+        );
 
         $this->info("Academia \"{$academy->name}\" criada ({$academy->slug}).");
         $this->line("Dono: {$owner->email}");

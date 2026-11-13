@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AuthenticateStudent;
+use App\Http\Middleware\EnsureSuperAdmin;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\ResolveTenantFromUser;
 use Illuminate\Foundation\Application;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'tenant' => ResolveTenantFromUser::class,
+            'super-admin' => EnsureSuperAdmin::class,
             'student' => AuthenticateStudent::class,
         ]);
 

@@ -1,7 +1,10 @@
 @php
-    // A resposta do preço vem da config e ganha o botão do WhatsApp logo abaixo.
+    // Com a seção de planos ligada, o preço aponta para ela; desligada, vem da config com o botão do WhatsApp.
+    $faixas = collect($plans)->pluck('monthly');
     $perguntas = [
-        ['Quanto custa?', config('landing.pricing_answer'), 'preco'],
+        $showPricing
+            ? ['Quanto custa?', "De {$faixas->first()} a {$faixas->last()} por mês, conforme o número de alunos ativos, sem taxa de implantação. No anual, 12 meses pelo preço de 10. Os valores de cada plano estão logo acima."]
+            : ['Quanto custa?', config('landing.pricing_answer'), 'preco'],
         [
             'O aluno precisa instalar alguma coisa?',
             'Não precisa baixar de loja. O aluno abre o link da academia no celular e o app mostra como colocá-lo na tela de início, com o nome e o logo da academia. Durante o treino funciona até sem internet.',

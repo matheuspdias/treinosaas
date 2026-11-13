@@ -29,6 +29,8 @@ export interface AuthUser {
   name: string
   email: string
   email_verified_at: string | null
+  /** Dono do TreinoBox: vê o painel /admin. */
+  isSuperAdmin: boolean
 }
 
 export interface SharedData {

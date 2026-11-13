@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AcademyController as AdminAcademyController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Panel\AppBrandingController;
 use App\Http\Controllers\Panel\AssessmentController;
@@ -13,6 +14,16 @@ use Illuminate\Support\Facades\Route;
 // Landing de venda para visitantes; quem está logado vai para o painel.
 Route::get('/', [LandingController::class, 'home'])->name('home');
 Route::get('privacidade', [LandingController::class, 'privacy'])->name('privacy');
+
+// Painel do dono do TreinoBox (super admin): todas as academias. A academia dele, se tiver, só
+// entra para o menu do painel continuar completo.
+Route::middleware(['auth', 'super-admin', 'tenant:optional'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('academias', [AdminAcademyController::class, 'index'])->name('academies.index');
+    Route::get('academias/nova', [AdminAcademyController::class, 'create'])->name('academies.create');
+    Route::post('academias', [AdminAcademyController::class, 'store'])->name('academies.store');
+    Route::get('academias/{academy}/editar', [AdminAcademyController::class, 'edit'])->name('academies.edit');
+    Route::put('academias/{academy}', [AdminAcademyController::class, 'update'])->name('academies.update');
+});
 
 // Painel da academia. `tenant` define a academia a partir do usuário (antes do route model
 // binding, ver bootstrap/app.php); cada rota exige a permissão do papel (App\Enums\Ability).

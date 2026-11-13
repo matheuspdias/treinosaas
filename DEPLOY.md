@@ -123,7 +123,8 @@ STUDENT_TOKEN_DAYS=180
 
 LANDING_APP_NAME=TreinoBox
 LANDING_WHATSAPP=5511999999999
-LANDING_SHOW_PRICING=false
+LANDING_SHOW_PRICING=true
+FOUNDER_SPOTS_TOTAL=10
 EOF
 
 chmod 600 backend/.env
@@ -167,6 +168,22 @@ docker compose -f docker-compose.prod.yml --env-file backend/.env exec app php a
 ```
 
 Rodar de novo não duplica.
+
+### Painel de super admin
+
+Para gerenciar todas as academias (plano, ciclo, fundador, teste grátis) em `https://treinobox.com.br/admin/academias`, dê acesso ao seu usuário (precisa já existir, por exemplo o dono da academia de teste):
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file backend/.env exec app php artisan admin:grant seu@email.com
+```
+
+### Revisão diária dos fundadores
+
+Quem cancela ou fica mais de 30 dias suspenso perde o preço de fundador (e a vaga volta a ficar livre). Agende no crontab do root (`crontab -e`):
+
+```
+0 4 * * * docker exec treinosaas_app php artisan academy:review-founders
+```
 
 Não rode `db:seed` em produção: o seeder cria as academias de demonstração com senha `password`.
 

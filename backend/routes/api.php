@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AcademyController;
+use App\Http\Controllers\Api\FounderSpotsController;
 use App\Http\Controllers\Api\Student\AuthController;
 use App\Http\Controllers\Api\Student\FeedController;
 use App\Http\Controllers\Api\Student\MeController;
@@ -14,6 +15,9 @@ Route::prefix('academies/{slug}')->name('api.academies.')->where(['slug' => '[a-
         Route::get('/', [AcademyController::class, 'show'])->name('show');
         Route::get('manifest.webmanifest', [AcademyController::class, 'manifest'])->name('manifest');
     });
+
+// Vagas do Programa Fundadores (landing). Contadas no banco, com cache curto.
+Route::get('founders/spots', FounderSpotsController::class)->middleware('throttle:academy-public')->name('api.founders.spots');
 
 // API do app do aluno (PWA). Autenticação por token do aparelho (Sanctum); JSON em camelCase.
 Route::prefix('student')->name('api.student.')->group(function () {

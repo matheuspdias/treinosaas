@@ -47,6 +47,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_super_admin' => 'boolean',
         ];
     }
 
@@ -71,5 +72,11 @@ class User extends Authenticatable
         $membership = $this->academies()->whereKey($academy->getKey())->first();
 
         return $membership?->pivot->role;
+    }
+
+    /** Dono do TreinoBox (painel /admin). Só vira pelo comando admin:grant. */
+    public function isSuperAdmin(): bool
+    {
+        return (bool) $this->is_super_admin;
     }
 }
