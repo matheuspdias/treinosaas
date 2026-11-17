@@ -177,13 +177,25 @@ Para gerenciar todas as academias (plano, ciclo, fundador, teste grátis) em `ht
 docker compose -f docker-compose.prod.yml --env-file backend/.env exec app php artisan admin:grant seu@email.com
 ```
 
-### Revisão diária dos fundadores
+### Agendador do Laravel
 
-Quem cancela ou fica mais de 30 dias suspenso perde o preço de fundador (e a vaga volta a ficar livre). Agende no crontab do root (`crontab -e`):
+As rotinas ficam em `backend/routes/console.php` (por exemplo, a revisão diária dos fundadores às 4h: quem cancela ou fica mais de 30 dias suspenso perde o preço de fundador). Para elas rodarem, o crontab do usuário `deploy` (`crontab -e`) chama o agendador a cada minuto:
 
 ```
-0 4 * * * docker exec treinosaas_app php artisan academy:review-founders
+* * * * * docker exec treinosaas_app php artisan schedule:run >> /dev/null 2>&1
 ```
+
+Configure uma vez só: rotinas novas entram no `console.php` e não precisam de outra linha no cron. Para ver o que está agendado: `docker exec treinosaas_app php artisan schedule:list`.
+
+### Academia de demonstração (vídeos e apresentações)
+
+Cria a "Academia Demo TreinoBox" com 10 alunos fictícios (celulares 11 90000-0001 a 0010), três fichas com carga, semanas de treinos registrados, avaliações e avisos. O dono `demo@treinobox.com.br` só tem acesso a ela:
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file backend/.env exec app php artisan academy:demo
+```
+
+Mostra o login do painel e o do aluno. Rodar de novo não duplica nada: só gera uma senha nova e volta o PIN do aluno ao padrão.
 
 Não rode `db:seed` em produção: o seeder cria as academias de demonstração com senha `password`.
 
