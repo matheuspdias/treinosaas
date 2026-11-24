@@ -1,6 +1,7 @@
 import { Head, Link, router, usePage } from '@inertiajs/react'
 import {
   ClipboardList,
+  Download,
   House,
   LogOut,
   Megaphone,
@@ -11,6 +12,9 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { InstallScreen } from '@/features/install/InstallScreen'
+import { useInstall } from '@/features/install/useInstall'
+import { promptInstall } from '@/lib/install'
 import { useCan } from '@/lib/useCan'
 import type { Ability, SharedData } from '@/types'
 import { cn } from '@/ui/cn'
@@ -88,6 +92,10 @@ export function PanelLayout({ title, children, width = 'wide' }: PanelLayoutProp
   const isActive = (i: NavItem) =>
     i.match.some((m) => url === m || url.startsWith(`${m}/`) || url.startsWith(`${m}?`))
   const user = props.auth.user
+  const install = useInstall()
+
+  // No celular, fora do app instalado: a mesma sugestão de instalação do app do aluno.
+  if (install.ask) return <InstallScreen />
 
   return (
     <div className="min-h-dvh lg:pl-72">
@@ -136,6 +144,18 @@ export function PanelLayout({ title, children, width = 'wide' }: PanelLayoutProp
             })}
           </ul>
         </nav>
+        {install.canPrompt && !install.standalone && (
+          <div className="px-3 pb-3">
+            <button
+              type="button"
+              onClick={() => void promptInstall()}
+              className="flex min-h-touch w-full items-center gap-3 rounded-control px-3 font-semibold text-fg-muted transition-colors hover:bg-surface-2 active:bg-surface-2"
+            >
+              <Download className="size-5" />
+              Instalar como app
+            </button>
+          </div>
+        )}
         {user && (
           <div className="flex items-center gap-3 border-t border-border p-4">
             <div className="min-w-0 flex-1">
